@@ -11,6 +11,10 @@ import componentsRouter from './modules/components'
 import chartsRouter from './modules/charts'
 import tableRouter from './modules/table'
 import nestedRouter from './modules/nested'
+import corexHomeRouter from './modules/corex-home'
+import corexProjectManageRouter from './modules/corex-projectmanage'
+import corexUserManageRouter from './modules/corex-usermanage'
+import corexUsertManageRouter from './modules/corex-usermanage'
 
 /**
  * Note: sub-menu only appear when route children.length >= 1
@@ -70,6 +74,10 @@ export const constantRoutes = [
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
+  // 自定义
+  corexHomeRouter,
+  corexProjectManageRouter,
+  corexUsertManageRouter,
   {
     path: '/',
     component: Layout,
@@ -210,7 +218,11 @@ export const asyncRoutes = [
         path: 'edit/:id(\\d+)',
         component: () => import('@/views/example/edit'),
         name: 'EditArticle',
-        meta: { title: 'Edit Article', noCache: true, activeMenu: '/example/list' },
+        meta: {
+          title: 'Edit Article',
+          noCache: true,
+          activeMenu: '/example/list'
+        },
         hidden: true
       },
       {
@@ -387,11 +399,12 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-const createRouter = () => new Router({
-  // mode: 'history', // require service support
-  scrollBehavior: () => ({ y: 0 }),
-  routes: constantRoutes
-})
+const createRouter = () =>
+  new Router({
+    // mode: 'history', // require service support
+    scrollBehavior: () => ({ y: 0 }),
+    routes: constantRoutes
+  })
 
 const router = createRouter()
 
