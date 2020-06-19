@@ -1,4 +1,5 @@
 import { asyncRoutes, constantRoutes } from '@/router'
+import { projectmanage } from '@/router/modules/projectmanage'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -47,11 +48,12 @@ const mutations = {
 }
 
 const actions = {
-  generateRoutes({ commit }, roles) {
+  generateRoutes({ commit }, obj) {
     return new Promise(resolve => {
-      let accessedRoutes
-      if (roles.includes('admin')) {
-        accessedRoutes = asyncRoutes || []
+      let accessedRoutes = []
+      if (obj.roles.includes('admin')) {
+        //动态添加管理项目管理路由
+        accessedRoutes = projectmanage(obj.projectList).concat(asyncRoutes)
       } else {
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }
