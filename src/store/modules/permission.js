@@ -52,7 +52,7 @@ const actions = {
     return new Promise(resolve => {
       let accessedRoutes = []
       if (obj.roles.includes('admin')) {
-        //动态添加管理项目管理路由
+        // 动态添加管理项目管理路由
         accessedRoutes = projectmanage(obj.projectList).concat(asyncRoutes)
       } else {
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)

@@ -3,14 +3,14 @@
     <div class="project-wrapper">
       <div class="project-title">
         <h4>项目概况</h4>
-        <el-button class="button-add" type="info" size="small" icon="el-icon-plus" circle @click="handleGoPage"></el-button>
+        <el-button class="button-add" type="info" size="small" icon="el-icon-plus" circle @click="handleGoPage" />
       </div>
       <div class="project-contect">
         <ul>
           <li v-for="(item,index) in projectList" :key="index">
-            <span class="li-pname">{{item.pname}}</span>
+            <span class="li-pname">{{ item.pname }}</span>
             <span class="li-waitingtack">待处理任务
-              <span style="fontSize:15px;color:#333;letter-spacing:1px;">{{item.waitingtack}}</span>
+              <span style="fontSize:15px;color:#333;letter-spacing:1px;">{{ item.waitingtack }}</span>
             </span>
           </li>
         </ul>

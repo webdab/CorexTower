@@ -54,9 +54,8 @@
           <el-input v-model="temp.pName" />
         </el-form-item>
         <el-form-item label="项目成员" prop="Pmember">
-          <el-select label="项目成员" v-model="temp.Pmember" filterable multiple placeholder="请选择项目成员" style="display:block">
-            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-            </el-option>
+          <el-select v-model="temp.Pmember" label="项目成员" filterable multiple placeholder="请选择项目成员" style="display:block">
+            <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
           </el-select>
         </el-form-item>
 
@@ -79,7 +78,7 @@ import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
 export default {
-  name: 'userList',
+  name: 'UserList',
   components: { Pagination },
   directives: { waves },
   filters: {},

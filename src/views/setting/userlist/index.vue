@@ -96,7 +96,7 @@ const teamOptions = [
 ]
 
 export default {
-  name: 'userList',
+  name: 'UserList',
   components: { Pagination },
   directives: { waves },
   filters: {},

@@ -1,9 +1,7 @@
 <template>
   <div class="teamlist-component">
     <div class="team-wrapper">
-      <div class="team-title">
-
-      </div>
+      <div class="team-title" />
       <div class="team-content">
         <img src="@/assets/images/001.png">
       </div>

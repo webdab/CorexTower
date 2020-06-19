@@ -4,8 +4,8 @@ import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '', //用户姓名
-  projectList: '', //项目列表
+  name: '', // 用户姓名
+  projectList: '', // 项目列表
   roles: []
 }
 
