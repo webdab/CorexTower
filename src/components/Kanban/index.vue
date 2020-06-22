@@ -19,7 +19,13 @@
     </div>
     <el-input v-show="showInput" v-model="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData">
-      <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">{{ element.name }}{{ element.id }}</div>
+      <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">
+        {{ element.name }}
+        <span>截止时间:2020/6/15-2020/6/20</span>
+        <span>负责人:Candy</span>
+        <span>协作人：李雷、韩梅梅、张扬</span>
+        <span>完成百分比:100%</span>
+      </div>
     </draggable>
     <div v-show="centerDialogVisible" class="dialog-page">
       <div class="page-container">
@@ -30,33 +36,30 @@
             <span>{{ headerText }}</span>
           </div>
           <div class="right">
-            <i class="el-icon-more" />
+            <i class="el-icon-video-pause" v-show="!missionStart" @click="()=>missionStart=!missionStart" />
+            <i class="el-icon-video-play" v-show="missionStart" @click="()=>missionStart=!missionStart" />
+            <i class="el-icon-delete" @click="deleteMission" />
             <i class="el-icon-close" @click="()=>centerDialogVisible=false" />
           </div>
         </div>
         <div class="page-content">
           <input class="checkbox" type="checkbox" :checked="checked">
           <div class="main-content">
-            <span v-show="!showMissionTitle" @click="()=>showMissionTitle=true">{{ missionTitle }}</span>
-            <input v-show="showMissionTitle" v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
+            <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
             <div class="nav">
               <div>
                 <i class="el-icon-user" />
-                <!-- <span>负责人</span> -->
                 <el-select v-model="leader" filterable size="mini" placeholder="添加负责人">
                   <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
               <div>
                 <svg-icon icon-class="peoples" />
-                <!-- <span>协作人</span> -->
                 <el-select v-model="collaborators" filterable multiple collapse-tags size="mini" placeholder="添加协作人">
                   <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value" />
                 </el-select>
               </div>
               <div class="pro-time">
-                <!-- <i class="el-icon-date" /> -->
-                <!-- <span>4月5日</span> -->
                 <el-date-picker v-model="time" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" />
               </div>
               <div>
@@ -81,7 +84,7 @@
             <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
             <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
           </div>
-          <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px">{{ textarea }}</p>
+          <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ textarea }}</p>
         </div>
         <div class="infos">
           <div>
@@ -90,8 +93,10 @@
           </div>
           <div class="advance">
             <span>完成百分比%</span>
-            <input ref="input_percent" v-model="percent" type="text" @blur.capture="submitPercent">
-            <span>%</span>
+            <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
+              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value">
+              </el-option>
+            </el-select>
           </div>
         </div>
         <div class="comments">
@@ -200,6 +205,28 @@ export default {
           label: '较低'
         }
       ],
+      percents: [
+        {
+          value: '选项一',
+          label: '0%'
+        },
+        {
+          value: '选项二',
+          label: '25%'
+        },
+        {
+          value: '选项三',
+          label: '50%'
+        },
+        {
+          value: '选项四',
+          label: '75%'
+        },
+        {
+          value: '选项五',
+          label: '100%'
+        }
+      ],
       input: '',
       textarea: '',
       showEdTitle: false,
@@ -216,8 +243,8 @@ export default {
       showDescribe: false,
       comments: '',
       percent: '0',
-      showMissionTitle: false,
-      missionTitle: ''
+      missionTitle: '',
+      missionStart: true
     }
   },
   watch: {
@@ -239,6 +266,25 @@ export default {
     },
     // 删除清单
     deleteList() {},
+    deleteMission() {
+      this.$confirm('确定要删除该任务吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+    },
     // 提交任务
     submit() {
       this.showInput = false
@@ -369,7 +415,7 @@ export default {
     left: 50%;
     margin-top: 20px;
     transform: translate(-50%, -50%);
-    z-index: 7;
+    z-index: 200;
     border-radius: 5px;
     background-color: #fff;
     border: 1px solid #efefef;
@@ -389,6 +435,11 @@ export default {
         padding: 0 24px;
         box-sizing: border-box;
         border-bottom: 1px solid #efefef;
+        .right {
+          i {
+            margin: 0 8px;
+          }
+        }
       }
       .page-content {
         padding: 14px 0;
@@ -404,15 +455,11 @@ export default {
         }
         .main-content {
           width: 100%;
-          span:first-child {
+          input {
             padding: 3px 0;
             font-size: 20px;
             line-height: 24px;
             vertical-align: baseline;
-          }
-          input {
-            padding: 3px 0;
-            font-size: 20px;
             border: 0;
             outline: none;
             background-color: rgba(0, 0, 0, 0);
@@ -423,9 +470,10 @@ export default {
             align-items: center;
             font-size: 14px;
             color: #999;
-            justify-content: space-around;
-            align-items: center;
+            padding-right: 20px;
             margin-top: 10px;
+            justify-content: space-between;
+            align-items: center;
             div {
               cursor: pointer;
             }
@@ -561,10 +609,13 @@ export default {
     position: fixed;
     left: 0;
     top: 0;
+    bottom: 0;
+    right: 0;
+    text-align: center;
     width: 100%;
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
-    z-index: 2;
+    z-index: 100;
   }
   .board-column-content {
     height: calc(100%-50px);
@@ -574,19 +625,29 @@ export default {
     justify-content: flex-start;
     flex-direction: column;
     align-items: center;
-
     .board-item {
       cursor: pointer;
       width: 100%;
-      height: 64px;
+      min-height: 64px;
       margin: 5px 0;
       background-color: #fff;
       text-align: left;
-      line-height: 54px;
+      line-height: 2em;
       padding: 5px 10px;
       box-sizing: border-box;
       box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
       border-left: 2px solid red;
+      span {
+        display: block;
+        max-width: 200px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 16px;
+        color: #999;
+      }
     }
   }
 }
