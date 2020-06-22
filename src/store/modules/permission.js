@@ -1,5 +1,6 @@
-import { asyncRoutes, constantRoutes } from '@/router'
+import router, { resetRouter, asyncRoutes, constantRoutes } from '@/router'
 import { projectmanage } from '@/router/modules/projectmanage'
+import Layout from '@/layout'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -48,6 +49,7 @@ const mutations = {
 }
 
 const actions = {
+  //生成路由
   generateRoutes({ commit }, obj) {
     return new Promise(resolve => {
       let accessedRoutes = []
@@ -58,7 +60,31 @@ const actions = {
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }
       commit('SET_ROUTES', accessedRoutes)
+
       resolve(accessedRoutes)
+    })
+  },
+
+  // 改变路由
+  changeRoutes({ commit, dispatch }, addRouteObj) {
+    return new Promise(async resolve => {
+      resetRouter()
+
+      let pmRoute = state.routes.find(item => item.name == 'projectmanage')
+      console.log(pmRoute)
+      pmRoute.children.push({
+        path: 'p' + addRouteObj.id,
+        component: () => import('@/views/projectmanage/index'),
+        name: addRouteObj.name,
+        meta: { title: addRouteObj.name }
+      })
+
+      console.log(11, state)
+      console.log(22, router)
+
+      router.addRoutes([pmRoute])
+
+      resolve()
     })
   }
 }
