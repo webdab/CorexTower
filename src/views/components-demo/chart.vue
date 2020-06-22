@@ -1,15 +1,18 @@
 <template>
-  <div />
+  <div>
+    chart
+  </div>
 </template>
 
 <script>
 export default {
-  props: {},
+  components: {},
   data() {
     return {}
   },
-  watch: {},
-  mounted() {},
   methods: {}
 }
 </script>
+
+<style lang="scss" scoped>
+</style>

@@ -3,7 +3,7 @@ import Layout from '@/layout'
 const projectManageRouter = {
   path: '/projectmanage',
   component: Layout,
-  // redirect: '/projectmanage/project1',
+  redirect: 'noRedirect',
   name: 'projectmanage',
   meta: {
     title: '项目管理',
@@ -11,23 +11,11 @@ const projectManageRouter = {
   },
   children: [
     {
-        path: 'project1',
-        component: () => import('@/views/components-demo/drag-kanban'),
-        name: 'DynamicTable',
-        meta: { title: '项目一' }
-      },
-    // {
-    //   path: 'project1',
-    //   component: () => import('@/views/corex-projectmanage/index'),
-    //   name: 'DynamicTable',
-    //   meta: { title: '项目一' }
-    // },
-    // {
-    //   path: 'project2',
-    //   component: () => import('@/views/corex-projectmanage/index'),
-    //   name: 'DragTable',
-    //   meta: { title: '项目二' }
-    // }
+      path: 'pdemo',
+      component: () => import('@/views/components-demo/drag-kanban'),
+      name: 'pdemo',
+      meta: { title: '项目一' }
+    }
   ]
 }
 
@@ -42,6 +30,5 @@ export function projectmanage(arr) {
       })
     })
   }
-  console.log([projectManageRouter])
   return [projectManageRouter]
 }

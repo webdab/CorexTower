@@ -10,32 +10,20 @@
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
-        <el-input ref="username" v-model="loginForm.username" placeholder="请输入账号" name="username" type="text" tabindex="1" autocomplete="on" />
+        <el-input ref="username" v-model="loginForm.username" placeholder="请输入用户名" name="username" type="text" tabindex="1" autocomplete="on" />
       </el-form-item>
 
-      <el-tooltip v-model="capsTooltip" content="大写已开启" placement="right" manual>
+      <!-- <el-tooltip v-model="capsTooltip" content="大写已开启" placement="right" manual>
         <el-form-item prop="password">
           <span class="svg-container">
             <svg-icon icon-class="password" />
           </span>
-          <el-input
-            :key="passwordType"
-            ref="password"
-            v-model="loginForm.password"
-            :type="passwordType"
-            placeholder="请输入密码"
-            name="password"
-            tabindex="2"
-            autocomplete="on"
-            @keyup.native="checkCapslock"
-            @blur="capsTooltip = false"
-            @keyup.enter.native="handleLogin"
-          />
+          <el-input :key="passwordType" ref="password" v-model="loginForm.password" :type="passwordType" placeholder="请输入密码" name="password" tabindex="2" autocomplete="on" @keyup.native="checkCapslock" @blur="capsTooltip = false" @keyup.enter.native="handleLogin" />
           <span class="show-pwd" @click="showPwd">
             <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
           </span>
         </el-form-item>
-      </el-tooltip>
+      </el-tooltip> -->
 
       <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">登录</el-button>
     </el-form>
@@ -48,12 +36,12 @@ export default {
   data() {
     return {
       loginForm: {
-        username: '',
-        password: ''
+        username: ''
+        // password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message: '请输入用户名' }],
-        password: [{ required: true, trigger: 'blur', message: '请输入密码' }]
+        username: [{ required: true, trigger: 'blur', message: '请输入用户名' }]
+        // password: [{ required: true, trigger: 'blur', message: '请输入密码' }]
       },
       passwordType: 'password',
       capsTooltip: false,
@@ -74,19 +62,16 @@ export default {
       immediate: true
     }
   },
-  created() {
-    // window.addEventListener('storage', this.afterQRScan)
-  },
+  created() {},
   mounted() {
     if (this.loginForm.username === '') {
       this.$refs.username.focus()
-    } else if (this.loginForm.password === '') {
-      this.$refs.password.focus()
     }
+    // else if (this.loginForm.password === '') {
+    //   this.$refs.password.focus()
+    // }
   },
-  destroyed() {
-    // window.removeEventListener('storage', this.afterQRScan)
-  },
+  destroyed() {},
   methods: {
     // 检查大小写
     checkCapslock(e) {
@@ -151,6 +136,10 @@ $cursor: #fff;
 
 /* reset element-ui css */
 .login-container {
+  // background-image: url('../../assets/images/002.jpg');
+  // background-repeat: no-repeat;
+  // background-size: 100% 100%;
+  // -moz-background-size: 100% 100%;
   .el-input {
     display: inline-block;
     height: 47px;

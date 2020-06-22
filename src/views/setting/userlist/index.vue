@@ -51,8 +51,8 @@
     <!-- 分页条 -->
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
     <!-- modal -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="left" label-width="70px" style="width: 400px; margin-left:50px;">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="700px">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 500px; margin-left:0px;">
         <el-form-item label="姓名" prop="name">
           <el-input v-model="temp.name" />
         </el-form-item>
@@ -63,7 +63,7 @@
           <el-input v-model="temp.userPwd" />
         </el-form-item>
         <el-form-item label="部门" prop="teamName">
-          <el-select v-model="temp.teamName" class="filter-item" placeholder="部门名称">
+          <el-select v-model="temp.teamName" class="filter-item" placeholder="部门名称" style="width:100%">
             <el-option v-for="item in teamOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
@@ -122,8 +122,8 @@ export default {
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑',
-        create: '添加'
+        update: '编辑用户',
+        create: '添加用户'
       },
       rules: {
         teamName: [{ required: true, message: '部门名称不能为空', trigger: 'change' }],
