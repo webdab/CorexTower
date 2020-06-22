@@ -2,6 +2,7 @@
   <div :class="{'has-logo':showLogo}">
     <logo v-if="showLogo" :collapse="isCollapse" />
     <el-scrollbar wrap-class="scrollbar-wrapper">
+      {{sid}}
       <el-menu
         :default-active="activeMenu"
         :collapse="isCollapse"
@@ -27,6 +28,9 @@ import variables from '@/styles/variables.scss'
 export default {
   components: { SidebarItem, Logo },
   computed: {
+    sid(){
+      console.log(123,this.$store)
+    },
     ...mapGetters([
       'permission_routes',
       'sidebar'

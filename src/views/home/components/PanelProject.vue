@@ -44,7 +44,13 @@ export default {
   computed: {},
   methods: {
     handleGoPage() {
-      this.$router.push({ name: 'Projectlist' })
+        this.$store.dispatch('permission/changeRoutes', {
+          id:4,
+          name:"ddd"
+        }).then(() => {
+          // this.$emit('change')
+        })
+      // this.$router.push({ name: 'Projectlist' })
     }
   }
 }
