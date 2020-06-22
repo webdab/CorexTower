@@ -10,6 +10,12 @@ const projectManageRouter = {
     icon: 'list'
   },
   children: [
+    {
+        path: 'project1',
+        component: () => import('@/views/components-demo/drag-kanban'),
+        name: 'DynamicTable',
+        meta: { title: '项目一' }
+      },
     // {
     //   path: 'project1',
     //   component: () => import('@/views/corex-projectmanage/index'),
