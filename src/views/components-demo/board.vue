@@ -59,12 +59,11 @@ export default {
 }
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .board {
-  width: 100%;
   height: 100%;
   box-sizing: border-box;
-  margin-left: 20px;
+  margin: 30px 20px;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -116,6 +115,9 @@ export default {
     .board-column-header {
       background: #efefef;
     }
+  }
+  .board-column-content {
+    border-top: none !important;
   }
 }
 </style>

@@ -64,8 +64,7 @@
           <el-input v-model="temp.pName" style="width:350px" />
         </el-form-item>
         <el-form-item label="项目周期" prop="pTime">
-          <el-date-picker v-model="temp.pTime" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" style="width:350px">
-          </el-date-picker>
+          <el-date-picker v-model="temp.pTime" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" style="width:350px" />
         </el-form-item>
         <el-form-item label="项目成员" prop="Pmember">
           <el-select v-model="temp.Pmember" label="项目成员" filterable multiple placeholder="请选择项目成员" style="display:block">
