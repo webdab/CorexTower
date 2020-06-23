@@ -261,11 +261,13 @@ export default {
       // Detail see : https://github.com/RubaXa/Sortable/issues/1012
       dataTransfer.setData('Text', '')
     },
+    // 编辑清单名称
     editTitle() {
       this.showEdTitle = !this.showEdTitle
     },
     // 删除清单
     deleteList() {},
+    // 删除该条任务
     deleteMission() {
       this.$confirm('确定要删除该任务吗?', '提示', {
         confirmButtonText: '确定',
@@ -298,6 +300,7 @@ export default {
       this.textarea = ''
       this.showInput = false
     },
+    // 提交修改的清单名称
     subTitle() {
       console.log('修改了title', this.input)
       this.currentTitle = this.input
@@ -313,14 +316,15 @@ export default {
       this.centerDialogVisible = true
       this.missionTitle = element.name
     },
+    // 保存项目描述
     saveDescribe() {
       this.showDescribe = false
     },
     // 设置任务标题
     submitMissionTitle() {
-      this.listMenu = this.list.unshift({
-        name: this.missionTitle
-      })
+      // this.listMenu = this.list.unshift({
+      //   name: this.missionTitle
+      // })
     },
     // 设置项目进度百分比
     submitPercent() {
@@ -407,7 +411,7 @@ export default {
     margin: 0 10px;
   }
   .dialog-page {
-    width: 80%;
+    width: 1110px;
     height: 80%;
     position: fixed;
     margin-left: 100px;

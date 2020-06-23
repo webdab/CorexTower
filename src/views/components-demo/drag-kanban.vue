@@ -5,7 +5,12 @@
     <Kanban :key="3" :list="list3" :group="group" class="kanban done" :header-text.sync="Done" />
     <Kanban :key="4" :list="list4" :group="group" class="kanban bug" :header-text.sync="Bug" />
     <Kanban :key="5" :list="list5" :group="group" class="kanban add" :header-text.sync="Add" />
-    <span class="addList" @click="addList">+添加清单</span>
+    <div class="addList" v-if="!showEdTitle" @click="addList">+添加清单</div>
+    <div v-if="showEdTitle" class="edlist">
+      <el-input v-model="listTitle" placeholder="输入清单名称" />
+      <el-button type="primary" class="submit" @click="submit">提交</el-button>
+      <el-button class="cancleSub" @click="()=>showEdTitle=false">取消</el-button>
+    </div>
   </div>
 </template>
 <script>
@@ -49,13 +54,22 @@ export default {
       Working: 'Working',
       Done: 'Done',
       Bug: 'Bug',
-      Add: 'Add'
+      Add: 'Add',
+      listTitle: '',
+      showEdTitle: false
     }
   },
   methods: {
     // 添加清单
     addList() {
-
+      this.showEdTitle = true
+      this.listTitle = ''
+    },
+    // 提交新增清单名称
+    submit() {
+      this.showEdTitle = false
+      console.log('新增清单名称', this.listTitle)
+      this.listTitle = ''
     }
   }
 }
@@ -71,19 +85,36 @@ export default {
   flex-direction: row;
   align-items: flex-start;
   .addList {
-    margin-right: 20px;
-    display: inline-block;
-    width: 324px;
-    font-size: 20px;
-    height: 60px;
-    line-height: 20px;
-    border: 1px solid #D9D3D3;
-    padding: 20px 100px;
+    min-width: 324px;
+    min-height: 60px;
+    box-sizing: border-box;
+    background: #f0f0f0;
+    border-radius: 3px;
+    margin: 0 10px;
+    border: 1px solid #d9d3d3;
     color: #333;
+    line-height: 60px;
     text-align: center;
     white-space: nowrap;
-    &:hover{
-      background-color: #F7FBFB;
+    &:hover {
+      background-color: #f7fbfb;
+    }
+  }
+  .edlist {
+    min-width: 324px;
+    min-height: 100px;
+    box-sizing: border-box;
+    background: #f0f0f0;
+    border-radius: 3px;
+    padding: 5px 10px;
+    margin: 0 10px;
+    border: 1px solid #d9d3d3;
+    color: #333;
+    .submit {
+      margin: 10px 10px;
+    }
+    .cancleSub {
+      margin: 10px 10px;
     }
   }
 }
