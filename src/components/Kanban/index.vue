@@ -36,14 +36,14 @@
             <span>{{ headerText }}</span>
           </div>
           <div class="right">
-            <i class="el-icon-video-pause" v-show="!missionStart" @click="()=>missionStart=!missionStart" />
-            <i class="el-icon-video-play" v-show="missionStart" @click="()=>missionStart=!missionStart" />
+            <i class="el-icon-video-pause" v-show="!missionStart" @click="changeMissionStatus('pause')" />
+            <i class="el-icon-video-play" v-show="missionStart" @click="changeMissionStatus('play')" />
             <i class="el-icon-delete" @click="deleteMission" />
             <i class="el-icon-close" @click="()=>centerDialogVisible=false" />
           </div>
         </div>
         <div class="page-content">
-          <input class="checkbox" type="checkbox" :checked="checked">
+          <input class="checkbox" type="checkbox" :checked="checked" @change="changeMissionStatus('check')">
           <div class="main-content">
             <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
             <div class="nav">
@@ -267,6 +267,16 @@ export default {
     },
     // 删除清单
     deleteList() {},
+    //改变任务的状态：开始任务、暂停任务、完成任务
+    changeMissionStatus(type) {
+      if (type === 'pause') {
+        this.missionStart = !this.missionStart
+      } else if (type === 'play') {
+        this.missionStart = !this.missionStart
+      } else if (type === 'check') {
+        this.checked = !this.checked
+      }
+    },
     // 删除该条任务
     deleteMission() {
       this.$confirm('确定要删除该任务吗?', '提示', {
@@ -412,7 +422,7 @@ export default {
   }
   .dialog-page {
     width: 1110px;
-    height: 80%;
+    height: 70%;
     position: fixed;
     margin-left: 100px;
     top: 50%;
@@ -443,6 +453,15 @@ export default {
           i {
             margin: 0 8px;
           }
+          .el-icon-video-pause {
+            color: #409eff;
+          }
+          .el-icon-video-play {
+            color: #409eff;
+          }
+          .el-icon-delete {
+            color: red;
+          }
         }
       }
       .page-content {
@@ -455,7 +474,7 @@ export default {
           font-size: 24px;
           font-weight: 400;
           line-height: 24px;
-          margin: 0 16px;
+          margin: 0 14px;
         }
         .main-content {
           width: 100%;
@@ -499,7 +518,7 @@ export default {
         font-size: 14px;
         font-weight: 400;
         width: 100%;
-        padding: 10px 10px;
+        padding: 10px 8px;
         border-bottom: 1px solid #efefef;
         .edit {
           padding: 10px 5px;
@@ -518,7 +537,7 @@ export default {
       .infos {
         font-size: 14px;
         width: 100%;
-        padding: 14px 10px;
+        padding: 14px 14px;
         border-bottom: 1px solid #efefef;
         .advance {
           color: #555;
@@ -540,13 +559,14 @@ export default {
         }
       }
       .comments {
-        padding: 16px 10px;
+        padding: 16px 14px;
         width: auto;
         border-top: 1px solid #efefef;
         .dynamic {
           font-size: 12px;
           color: #777;
           word-break: break-word;
+          padding-bottom: 20px;
           .dy-title {
             font-size: 14px;
             padding-bottom: 10px;
