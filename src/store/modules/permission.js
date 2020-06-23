@@ -49,7 +49,7 @@ const mutations = {
 }
 
 const actions = {
-  //生成路由
+  // 生成路由
   generateRoutes({ commit }, obj) {
     return new Promise(resolve => {
       let accessedRoutes = []
@@ -70,7 +70,7 @@ const actions = {
     return new Promise(async resolve => {
       resetRouter()
 
-      let pmRoute = state.routes.find(item => item.name == 'projectmanage')
+      const pmRoute = state.routes.find(item => item.name == 'projectmanage')
       console.log(pmRoute)
       pmRoute.children.push({
         path: 'p' + addRouteObj.id,

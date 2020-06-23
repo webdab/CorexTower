@@ -22,6 +22,16 @@
           <span>{{ row.author }}</span>
         </template>
       </el-table-column>
+      <el-table-column label="开始时间" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.author }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="结束时间" align="center">
+        <template slot-scope="{row}">
+          <span>{{ row.author }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column label="项目成员" align="center">
         <template slot-scope="{row}">
@@ -48,10 +58,13 @@
     <!-- 分页条 -->
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
     <!-- modal -->
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible">
-      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 600px; margin-left:50px;">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="700px">
+      <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 600px; margin-left:0px;">
         <el-form-item label="项目名称" prop="pName">
-          <el-input v-model="temp.pName" />
+          <el-input v-model="temp.pName" style="width:350px" />
+        </el-form-item>
+        <el-form-item label="项目周期" prop="pTime">
+          <el-date-picker v-model="temp.pTime" type="daterange" range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" style="width:350px" />
         </el-form-item>
         <el-form-item label="项目成员" prop="Pmember">
           <el-select v-model="temp.Pmember" label="项目成员" filterable multiple placeholder="请选择项目成员" style="display:block">
@@ -117,16 +130,18 @@ export default {
       ],
       temp: {
         pName: '',
+        pTime: '',
         Pmember: []
       },
       dialogFormVisible: false,
       dialogStatus: '',
       textMap: {
-        update: '编辑',
-        create: '添加'
+        update: '编辑项目',
+        create: '添加项目'
       },
       rules: {
-        pName: [{ required: true, message: '项目名称不能为空', trigger: 'change' }]
+        pName: [{ required: true, message: '项目名称不能为空', trigger: 'change' }],
+        pTime: [{ required: true, message: '项目周期不能为空', trigger: 'change' }]
       }
     }
   },

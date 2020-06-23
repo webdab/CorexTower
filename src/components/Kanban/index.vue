@@ -341,7 +341,7 @@ export default {
   height: 100%;
   background: #f0f0f0;
   border-radius: 3px;
-  margin: 0 10px;
+  margin: 0 5px;
   overflow-y: auto;
   .board-column-header {
     height: 50px;
@@ -622,13 +622,9 @@ export default {
     z-index: 100;
   }
   .board-column-content {
-    height: calc(100%-50px);
+    height: calc(100% - 50px);
     overflow-y: auto;
     border: 10px solid transparent;
-    display: flex;
-    justify-content: flex-start;
-    flex-direction: column;
-    align-items: center;
     .board-item {
       cursor: pointer;
       width: 100%;

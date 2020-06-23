@@ -27,8 +27,9 @@ export default {
   /* 50= navbar  50  */
   min-height: calc(100vh - 50px);
   width: 100%;
-  height: 700px;
+  height: 100%;
   position: relative;
+  overflow: hidden;
 }
 
 .fixed-header+.app-main {
