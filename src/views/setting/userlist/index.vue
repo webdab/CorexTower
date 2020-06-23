@@ -15,7 +15,7 @@
     </div>
     <!-- table -->
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;">
-      <el-table-column label="用户ID" prop="id" align="center" width="150px">
+      <el-table-column label="序号" prop="id" align="center" width="150px">
         <template slot-scope="{row}">
           <span>{{ row.id }}</span>
         </template>
@@ -25,7 +25,7 @@
           <span>{{ row.author }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="部门">
+      <el-table-column label="部门" align="center">
         <template slot-scope="{row}">
           <span>{{ row.author }}</span>
         </template>
@@ -33,7 +33,7 @@
 
       <el-table-column label="登录名" align="center">
         <template slot-scope="{row}">
-          <span style="color:red;">{{ row.reviewer }}</span>
+          <span>{{ row.reviewer }}</span>
         </template>
       </el-table-column>
 
@@ -59,9 +59,9 @@
         <el-form-item label="登录名" prop="userName">
           <el-input v-model="temp.userName" />
         </el-form-item>
-        <el-form-item label="密码" prop="userPwd">
+        <!-- <el-form-item label="密码" prop="userPwd">
           <el-input v-model="temp.userPwd" />
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="部门" prop="teamName">
           <el-select v-model="temp.teamName" class="filter-item" placeholder="部门名称" style="width:100%">
             <el-option v-for="item in teamOptions" :key="item.key" :label="item.display_name" :value="item.key" />
@@ -116,7 +116,7 @@ export default {
       temp: {
         name: '',
         userName: '',
-        userPwd: '',
+        // userPwd: '',
         teamName: ''
       },
       dialogFormVisible: false,
@@ -128,8 +128,8 @@ export default {
       rules: {
         teamName: [{ required: true, message: '部门名称不能为空', trigger: 'change' }],
         name: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
-        userName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
-        userPwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
+        userName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }]
+        // userPwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -164,7 +164,7 @@ export default {
       this.temp = {
         name: '',
         userName: '',
-        userPwd: '',
+        // userPwd: '',
         teamName: ''
       }
     },

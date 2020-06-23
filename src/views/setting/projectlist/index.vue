@@ -35,10 +35,10 @@
 
       <el-table-column label="项目成员" align="center">
         <template slot-scope="{row}">
-          <span style="color:red;">{{ row.reviewer }}</span>
+          <span>{{ row.reviewer }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="成员数量">
+      <el-table-column label="成员数量" align="center">
         <template slot-scope="{row}">
           <span>{{ row.author }}</span>
         </template>
@@ -97,7 +97,7 @@ export default {
   filters: {},
   data() {
     return {
-      tableKey: 0,
+      tableKey: 1,
       list: null,
       total: 0,
       listLoading: true,

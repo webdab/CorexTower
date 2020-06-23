@@ -48,6 +48,7 @@ export const constantRoutes = [
     component: () => import('@/views/login/index'),
     hidden: true
   },
+
   {
     path: '/404',
     component: () => import('@/views/error-page/404'),
@@ -56,11 +57,6 @@ export const constantRoutes = [
   {
     path: '/401',
     component: () => import('@/views/error-page/401'),
-    hidden: true
-  },
-  {
-    path: '*',
-    redirect: '/404',
     hidden: true
   },
   {
@@ -105,13 +101,18 @@ export const asyncRoutes = [
         component: () => import('@/views/setting/projectlist/index'),
         name: 'Projectlist',
         meta: { title: '项目列表' }
-      }
+      },
       // {
       //   path: 'role',
       //   component: () => import('@/views/setting/rolelist/index'),
       //   name: 'Role',
       //   meta: { title: '角色权限' }
       // }
+      {
+        path: '*',
+        redirect: '/404',
+        hidden: true
+      }
     ]
   }
 ]

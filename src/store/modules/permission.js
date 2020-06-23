@@ -1,6 +1,5 @@
 import router, { resetRouter, asyncRoutes, constantRoutes } from '@/router'
 import { projectmanage } from '@/router/modules/projectmanage'
-import Layout from '@/layout'
 
 /**
  * Use meta.role to determine if the current user has permission
