@@ -49,7 +49,7 @@
       </el-table-column>
     </el-table>
     <!-- 分页条 -->
-    <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" />
+    <pagination v-show="total>0" :total="total" :page.sync="listQuery.current" :limit.sync="listQuery.size" @pagination="getList" />
     <!-- modal -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="700px">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 500px; margin-left:0px;">
@@ -59,9 +59,9 @@
         <el-form-item label="登录名" prop="userName">
           <el-input v-model="temp.userName" />
         </el-form-item>
-        <!-- <el-form-item label="密码" prop="userPwd">
-          <el-input v-model="temp.userPwd" />
-        </el-form-item> -->
+        <el-form-item label="密码" prop="userPwd">
+          <el-input v-model="temp.passwd" />
+        </el-form-item>
         <el-form-item label="部门" prop="teamName">
           <el-select v-model="temp.teamName" class="filter-item" placeholder="部门名称" style="width:100%">
             <el-option v-for="item in teamOptions" :key="item.key" :label="item.display_name" :value="item.key" />
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import { fetchList, fetchPv, createArticle, updateArticle } from '@/api/article'
+import { getList } from '@/api/setting-user'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination' // secondary package based on el-pagination
 
@@ -107,17 +107,22 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        page: 1,
-        limit: 20,
-        name: undefined,
-        teamName: undefined
+        current: '1',
+        params: {
+          userName: '',
+          deptName: ''
+        },
+        orderBy: {
+          createTime: 'ASC'
+        },
+        size: '20'
       },
       teamOptions,
       temp: {
-        name: '',
         userName: '',
-        // userPwd: '',
-        teamName: ''
+        loginName: '',
+        passwd: '',
+        deptName: ''
       },
       dialogFormVisible: false,
       dialogStatus: '',
@@ -139,7 +144,7 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
+      getList(this.listQuery).then(response => {
         this.list = response.data.items
         this.total = response.data.total
 
@@ -150,7 +155,7 @@ export default {
       })
     },
     handleFilter() {
-      this.listQuery.page = 1
+      this.listQuery.current = 1
       this.getList()
     },
     handleModifyStatus(row, status) {

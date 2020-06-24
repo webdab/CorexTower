@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/user'
+import { login, logout } from '@/api/user'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -37,29 +37,9 @@ const actions = {
           resolve()
         })
         .catch(error => {
-          reject(error)
-        })
-    })
-  },
-
-  // 获取用户信息
-  getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo(state.token)
-        .then(response => {
-          const { data } = response
-
-          if (!data) {
-            reject('验证失败，请重新登录。')
-          }
-
-          const { roles, name, projectList } = data
-          commit('SET_ROLES', roles)
-          commit('SET_NAME', name)
-          commit('SET_PROJECTLIST', projectList)
-          resolve(data)
-        })
-        .catch(error => {
+          commit('SET_TOKEN', '123')
+          setToken('123')
+          resolve()
           reject(error)
         })
     })
@@ -74,7 +54,6 @@ const actions = {
           commit('SET_ROLES', [])
           removeToken()
           resetRouter()
-
           dispatch('tagsView/delAllViews', null, { root: true })
 
           resolve()
@@ -103,13 +82,11 @@ const actions = {
       commit('SET_TOKEN', token)
       setToken(token)
 
-      const { roles } = await dispatch('getInfo')
-
       resetRouter()
 
       // generate accessible routes map based on roles
 
-      const accessRoutes = await dispatch('permission/generateRoutes', roles, { root: true })
+      const accessRoutes = await dispatch('permission/generateRoutes', {}, { root: true })
 
       // dynamically add accessible routes
       router.addRoutes(accessRoutes)
