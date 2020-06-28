@@ -6,11 +6,11 @@
         <h3 class="title">一体化tower</h3>
       </div>
 
-      <el-form-item prop="username">
+      <el-form-item prop="loginName">
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
-        <el-input ref="username" v-model="loginForm.username" placeholder="请输入用户名" name="username" type="text" tabindex="1" autocomplete="on" />
+        <el-input ref="loginName" v-model="loginForm.loginName" placeholder="请输入用户名" name="loginName" type="text" tabindex="1" autocomplete="on" />
       </el-form-item>
 
       <!-- <el-tooltip v-model="capsTooltip" content="大写已开启" placement="right" manual>
@@ -36,11 +36,11 @@ export default {
   data() {
     return {
       loginForm: {
-        username: ''
+        loginName: ''
         // password: ''
       },
       loginRules: {
-        username: [{ required: true, trigger: 'blur', message: '请输入用户名' }]
+        loginName: [{ required: true, trigger: 'blur', message: '请输入用户名' }]
         // password: [{ required: true, trigger: 'blur', message: '请输入密码' }]
       },
       passwordType: 'password',
@@ -64,8 +64,8 @@ export default {
   },
   created() {},
   mounted() {
-    if (this.loginForm.username === '') {
-      this.$refs.username.focus()
+    if (this.loginForm.loginName === '') {
+      this.$refs.loginName.focus()
     }
     // else if (this.loginForm.password === '') {
     //   this.$refs.password.focus()

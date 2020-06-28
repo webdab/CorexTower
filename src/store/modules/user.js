@@ -1,75 +1,64 @@
 import { login, logout } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { getToken, setToken, removeToken, getUserId, setUserId, removeUserId } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
   name: '', // 用户姓名
-  projectList: '', // 项目列表
-  roles: []
+  roles: [],
+  userId: getUserId() // 用户ID
 }
 
 const mutations = {
   SET_TOKEN: (state, token) => {
     state.token = token
   },
-  SET_PROJECTLIST: (state, projectList) => {
-    state.projectList = projectList
-  },
   SET_NAME: (state, name) => {
     state.name = name
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_USERID: (state, userId) => {
+    state.userId = userId
   }
 }
 
 const actions = {
   // 登录
   login({ commit }, userInfo) {
-    const { username } = userInfo
+    const { loginName } = userInfo
     return new Promise((resolve, reject) => {
-      login({ username: username.trim() })
+      login({ loginName: loginName.trim() })
         .then(response => {
           const { data } = response
-          commit('SET_TOKEN', data.token)
-          setToken(data.token)
+          commit('SET_USERID', data.userId)
+          setUserId(data.userId)
           resolve()
         })
         .catch(error => {
-          commit('SET_TOKEN', '123')
-          setToken('123')
-          resolve()
           reject(error)
         })
     })
   },
 
   // 退出
-  logout({ commit, state, dispatch }) {
+  logout({ commit, dispatch }) {
     return new Promise((resolve, reject) => {
-      logout(state.token)
-        .then(() => {
-          commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
-          removeToken()
-          resetRouter()
-          dispatch('tagsView/delAllViews', null, { root: true })
-
-          resolve()
-        })
-        .catch(error => {
-          reject(error)
-        })
+      commit('SET_USERID', '')
+      removeUserId()
+      dispatch('tagsView/delAllViews', null, { root: true })
+      commit('permission/SET_ROUTES_STATE', false, { root: true })
+      resolve()
     })
   },
 
-  // 清空token
+  // 移除token
   resetToken({ commit }) {
     return new Promise(resolve => {
-      commit('SET_TOKEN', '')
-      commit('SET_ROLES', [])
-      removeToken()
+      commit('SET_USERID', '')
+      commit('permission/SET_ROUTES_STATE', false, { root: true })
+      removeUserId()
       resolve()
     })
   },

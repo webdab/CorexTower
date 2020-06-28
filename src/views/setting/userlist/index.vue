@@ -2,8 +2,8 @@
   <div class="app-container">
     <div class="filter-container">
       <!-- 搜索条 -->
-      <el-input v-model="listQuery.name" placeholder="姓名" style="width: 200px;" class="filter-item" />
-      <el-select v-model="listQuery.teamName" placeholder="部门" clearable style="width: 200px" class="filter-item">
+      <el-input v-model.trim="listQuery.paramObj.userName" placeholder="姓名" style="width: 200px;" class="filter-item" />
+      <el-select v-model.trim="listQuery.paramObj.deptName" placeholder="部门" clearable style="width: 200px" class="filter-item">
         <el-option v-for="item in teamOptions" :key="item.key" :label="item.display_name" :value="item.key" />
       </el-select>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
@@ -15,34 +15,29 @@
     </div>
     <!-- table -->
     <el-table :key="tableKey" v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%;">
-      <el-table-column label="序号" prop="id" align="center" width="150px">
-        <template slot-scope="{row}">
-          <span>{{ row.id }}</span>
-        </template>
-      </el-table-column>
       <el-table-column label="姓名" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.userName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="部门" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.author }}</span>
+          <span>{{ row.deptName }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="登录名" align="center">
         <template slot-scope="{row}">
-          <span>{{ row.reviewer }}</span>
+          <span>{{ row.loginName }}</span>
         </template>
       </el-table-column>
 
       <el-table-column label="操作" align="center" width="230" class-name="small-padding fixed-width">
-        <template slot-scope="{row,$index}">
+        <template slot-scope="{row}">
           <el-button type="primary" size="mini" @click="handleUpdate(row)">
             编辑
           </el-button>
-          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="handleDelete(row,$index)">
+          <el-button v-if="row.status!='deleted'" size="mini" type="danger" @click="deleteUser(row)">
             删除
           </el-button>
         </template>
@@ -53,17 +48,17 @@
     <!-- modal -->
     <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="700px">
       <el-form ref="dataForm" :rules="rules" :model="temp" label-position="right" label-width="100px" style="width: 500px; margin-left:0px;">
-        <el-form-item label="姓名" prop="name">
-          <el-input v-model="temp.name" />
-        </el-form-item>
-        <el-form-item label="登录名" prop="userName">
+        <el-form-item label="姓名" prop="userName">
           <el-input v-model="temp.userName" />
         </el-form-item>
-        <el-form-item label="密码" prop="userPwd">
+        <el-form-item label="登录名" prop="loginName">
+          <el-input v-model="temp.loginName" />
+        </el-form-item>
+        <el-form-item label="密码" prop="passwd">
           <el-input v-model="temp.passwd" />
         </el-form-item>
-        <el-form-item label="部门" prop="teamName">
-          <el-select v-model="temp.teamName" class="filter-item" placeholder="部门名称" style="width:100%">
+        <el-form-item label="部门" prop="deptName">
+          <el-select v-model="temp.deptName" class="filter-item" placeholder="部门名称" style="width:100%">
             <el-option v-for="item in teamOptions" :key="item.key" :label="item.display_name" :value="item.key" />
           </el-select>
         </el-form-item>
@@ -72,7 +67,7 @@
         <el-button @click="dialogFormVisible = false">
           取消
         </el-button>
-        <el-button type="primary" @click="dialogStatus==='create'?createData():updateData()">
+        <el-button type="primary" @click="dialogStatus==='create'?addUser():updateUser()">
           确认
         </el-button>
       </div>
@@ -81,18 +76,18 @@
 </template>
 
 <script>
-import { getList } from '@/api/setting-user'
-import waves from '@/directive/waves' // waves directive
-import Pagination from '@/components/Pagination' // secondary package based on el-pagination
+import { getList, addUser, updateUser, deleteUser } from '@/api/setting-user'
+import waves from '@/directive/waves'
+import Pagination from '@/components/Pagination'
 
 const teamOptions = [
-  { key: 'yth', display_name: '一体化产品研发部' },
-  { key: 'xxh', display_name: '信息化产品研发部' },
-  { key: 'yxcp', display_name: '影像产品研发部' },
-  { key: 'ptcp', display_name: '平台产品研发部' },
-  { key: 'cpgl', display_name: '产品管理部' },
-  { key: 'cpcs', display_name: '产品测试部' },
-  { key: 'zlb', display_name: '质量部' }
+  { key: '一体化产品研发部', display_name: '一体化产品研发部' },
+  { key: '信息化产品研发部', display_name: '信息化产品研发部' },
+  { key: '影像产品研发部', display_name: '影像产品研发部' },
+  { key: '平台产品研发部', display_name: '平台产品研发部' },
+  { key: '产品管理部', display_name: '产品管理部' },
+  { key: '产品测试部', display_name: '产品测试部' },
+  { key: '质量部', display_name: '质量部' }
 ]
 
 export default {
@@ -107,17 +102,15 @@ export default {
       total: 0,
       listLoading: true,
       listQuery: {
-        current: '1',
-        params: {
+        current: 1,
+        paramObj: {
           userName: '',
           deptName: ''
         },
-        orderBy: {
-          createTime: 'ASC'
-        },
-        size: '20'
+        size: 20
       },
       teamOptions,
+      // 新增参数
       temp: {
         userName: '',
         loginName: '',
@@ -128,13 +121,13 @@ export default {
       dialogStatus: '',
       textMap: {
         update: '编辑用户',
-        create: '添加用户'
+        create: '新增用户'
       },
       rules: {
-        teamName: [{ required: true, message: '部门名称不能为空', trigger: 'change' }],
-        name: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
-        userName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }]
-        // userPwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
+        deptName: [{ required: true, message: '部门名称不能为空', trigger: 'change' }],
+        userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
+        loginName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+        passwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       }
     }
   },
@@ -142,35 +135,34 @@ export default {
     this.getList()
   },
   methods: {
+    // 查询
     getList() {
       this.listLoading = true
-      getList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      if (!this.listQuery.paramObj.userName) {
+        this.listQuery.paramObj.userName = undefined
+      }
+      if (!this.listQuery.paramObj.deptName) {
+        this.listQuery.paramObj.deptName = undefined
+      }
 
-        // Just to simulate the time of the request
-        setTimeout(() => {
-          this.listLoading = false
-        }, 1.5 * 1000)
+      getList(this.listQuery).then(response => {
+        this.list = response.data.records
+        this.total = response.data.total
+        this.listLoading = false
       })
     },
+    // 搜索
     handleFilter() {
       this.listQuery.current = 1
       this.getList()
     },
-    handleModifyStatus(row, status) {
-      this.$message({
-        message: '操作Success',
-        type: 'success'
-      })
-      row.status = status
-    },
+    // 重置参数
     resetTemp() {
       this.temp = {
-        name: '',
         userName: '',
-        // userPwd: '',
-        teamName: ''
+        loginName: '',
+        passwd: '',
+        deptName: ''
       }
     },
     // 添加打开模态框
@@ -182,18 +174,16 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
-    // 保存
-    createData() {
+    // 新增用户
+    addUser() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          this.temp.id = parseInt(Math.random() * 100) + 1024 // mock a id
-          this.temp.author = 'vue-element-admin'
-          createArticle(this.temp).then(() => {
-            this.list.unshift(this.temp)
+          addUser(this.temp).then(() => {
             this.dialogFormVisible = false
+            this.getList()
             this.$notify({
               title: 'Success',
-              message: 'Created Successfully',
+              message: '用户新增成功',
               type: 'success',
               duration: 2000
             })
@@ -203,8 +193,7 @@ export default {
     },
     // 编辑打开模态框
     handleUpdate(row) {
-      this.temp = Object.assign({}, row) // copy obj
-      this.temp.timestamp = new Date(this.temp.timestamp)
+      this.temp = Object.assign({}, row)
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       this.$nextTick(() => {
@@ -212,18 +201,15 @@ export default {
       })
     },
     // 更新用户
-    updateData() {
+    updateUser() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          const tempData = Object.assign({}, this.temp)
-          tempData.timestamp = +new Date(tempData.timestamp) // change Thu Nov 30 2017 16:41:05 GMT+0800 (CST) to 1512031311464
-          updateArticle(tempData).then(() => {
-            const index = this.list.findIndex(v => v.id === this.temp.id)
-            this.list.splice(index, 1, this.temp)
+          updateUser(this.temp).then(() => {
             this.dialogFormVisible = false
+            this.getList()
             this.$notify({
               title: 'Success',
-              message: 'Update Successfully',
+              message: '用户修改成功',
               type: 'success',
               duration: 2000
             })
@@ -232,14 +218,17 @@ export default {
       })
     },
     // 删除用户
-    handleDelete(row, index) {
-      this.$notify({
-        title: 'Success',
-        message: 'Delete Successfully',
-        type: 'success',
-        duration: 2000
+    deleteUser(row) {
+      deleteUser(row.userId).then(() => {
+        this.dialogFormVisible = false
+        this.getList()
+        this.$notify({
+          title: 'Success',
+          message: '用户删除成功',
+          type: 'success',
+          duration: 2000
+        })
       })
-      this.list.splice(index, 1)
     }
   }
 }

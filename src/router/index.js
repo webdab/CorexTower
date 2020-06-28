@@ -102,12 +102,6 @@ export const asyncRoutes = [
         name: 'Projectlist',
         meta: { title: '项目列表' }
       },
-      // {
-      //   path: 'role',
-      //   component: () => import('@/views/setting/rolelist/index'),
-      //   name: 'Role',
-      //   meta: { title: '角色权限' }
-      // }
       {
         path: '*',
         redirect: '/404',
