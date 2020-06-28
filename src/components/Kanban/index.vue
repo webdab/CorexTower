@@ -20,11 +20,11 @@
     <el-input v-show="showInput" v-model="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData">
       <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">
-        {{ element.name }}
-        <span>截止时间:2020/6/15-2020/6/20</span>
-        <span>负责人:Candy</span>
-        <span>协作人：李雷、韩梅梅、张扬</span>
-        <span>完成百分比:100%</span>
+        {{ element.taskName }}
+        <span>截止时间:{{element.planStartDate}}-{{element.planEndDate}}</span>
+        <span>负责人:-</span>
+        <span>协作人:-</span>
+        <span>完成百分比:{{element.completePercent}}%</span>
       </div>
     </draggable>
     <div v-show="centerDialogVisible" class="dialog-page">
@@ -36,8 +36,8 @@
             <span>{{ headerText }}</span>
           </div>
           <div class="right">
-            <i class="el-icon-video-pause" v-show="!missionStart" @click="changeMissionStatus('pause')" />
-            <i class="el-icon-video-play" v-show="missionStart" @click="changeMissionStatus('play')" />
+            <i v-show="!missionStart" class="el-icon-video-pause" @click="changeMissionStatus('pause')" />
+            <i v-show="missionStart" class="el-icon-video-play" @click="changeMissionStatus('play')" />
             <i class="el-icon-delete" @click="deleteMission" />
             <i class="el-icon-close" @click="()=>centerDialogVisible=false" />
           </div>
@@ -60,11 +60,11 @@
                 </el-select>
               </div>
               <div class="pro-time">
-                <el-date-picker v-model="time" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" />
+                <el-date-picker v-model="time" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
               </div>
               <div>
                 <i class="el-icon-warning-outline" />
-                <el-select v-model="level" size="mini" placeholder="优先级">
+                <el-select v-model="level" size="mini" placeholder="优先级" @change="submitLevel">
                   <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.value">
                     <span>{{ item.label }}</span>
                   </el-option>
@@ -80,11 +80,11 @@
             <a @click="()=>showDescribe=true">编辑</a>
           </div>
           <div v-show="showDescribe">
-            <el-input v-model="textarea" type="textarea" :rows="4" placeholder="请输入内容" />
+            <el-input v-model="describe" type="textarea" :rows="4" placeholder="请输入内容" />
             <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
             <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
           </div>
-          <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ textarea }}</p>
+          <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
         </div>
         <div class="infos">
           <div>
@@ -105,25 +105,29 @@
               <i class="el-icon-edit" />
               <span>操作日志</span>
             </div>
-            <span class="dy-time">06-18 10:28</span>
-            <span class="dy-name">Bubble</span>
-            <span class="dy-info">完成了任务</span>
+            <div class="dy-content" v-for="item in logs" :key="item.logId">
+              <span class="dy-time">{{item.optDate}}</span>
+              <span class="dy-name">用户</span>
+              <span class="dy-info">{{item.optContent}}</span>
+            </div>
           </div>
           <div class="comment-info">
             <div class="com-title">
               <i class="el-icon-chat-line-round" />
               <span>评论区</span>
             </div>
-            <span class="com-time">06-18 10:28</span>
-            <span class="com-name">Bubble</span>
-            <span>发表评论</span>
-            <span class="com-info">2222222</span>
+            <div class="com-content" v-for="item in commentList" :key="item.commentId">
+              <span class="com-time">{{item.createDate}}</span>
+              <span class="com-name">用户</span>
+              <span>发表评论</span>
+              <span class="com-info">{{item.commentInfo}}</span>
+            </div>
           </div>
           <div class="edit-comment">
             <span>Bubble</span>
             <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
             <div class="com-commit">
-              <el-button type="primary" size="small">发表评论</el-button>
+              <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
               <el-button type="info" size="small">取消</el-button>
             </div>
           </div>
@@ -136,6 +140,8 @@
 
 <script>
 import draggable from 'vuedraggable'
+import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments } from '@/api/project'
+import { string } from 'clipboard'
 export default {
   name: 'DragKanbanDemo',
   components: {
@@ -157,7 +163,8 @@ export default {
       default() {
         return []
       }
-    }
+    },
+    panelId: Number
   },
   data() {
     return {
@@ -207,33 +214,33 @@ export default {
       ],
       percents: [
         {
-          value: '选项一',
+          value: '0',
           label: '0%'
         },
         {
-          value: '选项二',
+          value: '25',
           label: '25%'
         },
         {
-          value: '选项三',
+          value: '50',
           label: '50%'
         },
         {
-          value: '选项四',
+          value: '75',
           label: '75%'
         },
         {
-          value: '选项五',
+          value: '100',
           label: '100%'
         }
       ],
       input: '',
       textarea: '',
+      describe: '',
       showEdTitle: false,
       showInput: false,
       centerDialogVisible: false,
       listMenu: [],
-      currentTitle: this.headerText,
       checked: false,
       time: [],
       leader: '',
@@ -242,9 +249,12 @@ export default {
       showEditTitle: false,
       showDescribe: false,
       comments: '',
-      percent: '0',
+      percent: '',
       missionTitle: '',
-      missionStart: true
+      missionStart: true,
+      currentIndex: '',
+      logs: [],
+      commentList: []
     }
   },
   watch: {
@@ -261,13 +271,28 @@ export default {
       // Detail see : https://github.com/RubaXa/Sortable/issues/1012
       dataTransfer.setData('Text', '')
     },
+    getList() {
+      var data = {
+        projectId: 1,
+        userId: 1
+      }
+      this.$store.dispatch('project/fetchPanelList', data)
+    },
     // 编辑清单名称
     editTitle() {
       this.showEdTitle = !this.showEdTitle
+      this.showInput = false
     },
-    // 删除清单
-    deleteList() {},
-    //改变任务的状态：开始任务、暂停任务、完成任务
+    // 删除清单面板
+    async deleteList() {
+      const response = await deletePanel(this.panelId)
+      this.$message({
+        type: 'success',
+        message: response.msg
+      })
+      this.getList()
+    },
+    // 改变任务的状态：开始任务、暂停任务、完成任务
     changeMissionStatus(type) {
       if (type === 'pause') {
         this.missionStart = !this.missionStart
@@ -284,11 +309,24 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          this.$message({
-            type: 'success',
-            message: '删除成功!'
-          })
+        .then(async () => {
+          console.log('currentIndex', this.list[this.currentIndex].taskId)
+          const response = await deleteTask(this.list[this.currentIndex].taskId)
+          if (response.success === true) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            if (response.success === true) {
+              this.getList()
+            }
+            this.centerDialogVisible = false
+          } else {
+            this.$message({
+              type: 'error',
+              message: '删除失败!'
+            })
+          }
         })
         .catch(() => {
           this.$message({
@@ -298,22 +336,41 @@ export default {
         })
     },
     // 提交任务
-    submit() {
+    async submit() {
       this.showInput = false
-      this.listMenu = this.list.unshift({
-        name: this.textarea
-      })
+      var data = {
+        panelId: this.panelId,
+        taskName: this.textarea
+      }
+      const response = await addTask(data)
+      if (response.success === true) {
+        this.getList()
+      }
       this.textarea = ''
-      console.log('list', this.list)
     },
     cancleSubmit() {
       this.textarea = ''
       this.showInput = false
     },
     // 提交修改的清单名称
-    subTitle() {
+    async subTitle() {
       console.log('修改了title', this.input)
-      this.currentTitle = this.input
+      try {
+        var data = {
+          panelTitle: this.input,
+          panelId: this.panelId,
+          projectId: 1,
+          userId: 1
+        }
+        var response = await updatePanel(data)
+        this.$message({
+          type: 'success',
+          message: response.msg
+        })
+        this.getList()
+      } catch (error) {
+        console.log(error)
+      }
       this.input = ''
       this.showEdTitle = false
     },
@@ -321,24 +378,122 @@ export default {
       this.showEdTitle = false
       this.input = ''
     },
-    // 点击列表展示相应的详情页
-    getIndex(index, element) {
+    // 点击列表展示相应的详情
+    async getIndex(index, element) {
       this.centerDialogVisible = true
-      this.missionTitle = element.name
+      this.missionTitle = element.taskName
+      this.currentIndex = index
+      this.percent = element.completePercent ? String(element.completePercent) : ''
+      this.time=[]
+      this.time.push(element.planStartDate ? String(element.planStartDate) : '')
+      this.time.push(element.planEndDate ? String(element.planEndDate) : '')
+      this.describe = element.taskInfo ? element.taskInfo : ''
+      console.log('time', this.time)
+      var logData = {
+        current: 1,
+        paramObj: {
+          taskId: this.list[this.currentIndex].taskId
+        },
+        size: 10
+      }
+      var commentData = {
+        current: 1,
+        paramObj: {
+          taskId: this.list[this.currentIndex].taskId,
+          userId: 1
+        },
+        size: 10
+      }
+      // 获取操作日志
+      const logResponse = await getLog(logData)
+      if (logResponse.success === true) {
+        this.logs = logResponse.data.records
+      }
+      // 获取评论列表
+      const commentResponse = await getComments(commentData)
+      if (commentResponse.success === true) {
+        this.commentList = commentResponse.data.records
+      }
     },
     // 保存项目描述
-    saveDescribe() {
-      this.showDescribe = false
+    async saveDescribe() {
+      var taskData = {
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        taskInfo: this.describe
+      }
+      const response = await updateTask(taskData)
+      if (response.success === true) {
+        this.showDescribe = false
+        this.describe = ''
+        this.getList()
+      }
     },
     // 设置任务标题
-    submitMissionTitle() {
-      // this.listMenu = this.list.unshift({
-      //   name: this.missionTitle
-      // })
+    async submitMissionTitle() {
+      var taskData = {
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        taskName: this.missionTitle
+      }
+      const response = await updateTask(taskData)
+      if (response.success === true) {
+        this.getList()
+      }
+    },
+    /*
+    项目开始时间与结束时间
+     */
+    async setTimeRound() {
+      var timeData = {
+        panelId: this.panelId,
+        planStartDate: this.time != null && this.time[0],
+        planEndDate: this.time != null && this.time[1],
+        taskId: this.list[this.currentIndex].taskId
+      }
+      if (this.time == null) return
+      const response = await updateTask(timeData)
+      if (response.success === true) {
+        this.getList()
+      }
     },
     // 设置项目进度百分比
-    submitPercent() {
+    async submitPercent() {
       console.log('precent', this.percent)
+      var percentData = {
+        completePercent: this.percent,
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        taskName: this.missionTitle
+      }
+      const response = await updateTask(percentData)
+      if (response.success === true) {
+        this.getList()
+      }
+    },
+    // 发表评论
+    async commitComment() {
+      var commentData = {
+        commentInfo: this.comments,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: 1
+      }
+      console.log('commentData', commentData)
+      const response = await addComment(commentData)
+      if (response.success === true) {
+        this.comments = ''
+        var logData = {
+          current: 1,
+          paramObj: {
+            taskId: this.list[this.currentIndex].taskId
+          },
+          size: 10
+        }
+        const commentResponse = await getComments(commentData)
+        if (commentResponse.success === true) {
+          this.commentList = commentResponse.data.records
+        }
+      }
     }
   }
 }
@@ -567,37 +722,42 @@ export default {
           color: #777;
           word-break: break-word;
           padding-bottom: 20px;
-          .dy-title {
-            font-size: 14px;
-            padding-bottom: 10px;
-            color: #000;
-          }
-          .dy-time {
-            margin: 10px 10px;
-            padding-top: 10px;
-          }
-          .dy-name {
-            margin: 10px 10px;
+          .dy-content {
+            margin: 10px 0px;
+            .dy-title {
+              font-size: 14px;
+              padding-bottom: 10px;
+              color: #000;
+            }
+            .dy-time {
+              margin: 10px 10px;
+              padding-top: 10px;
+            }
+            .dy-name {
+              margin: 10px 10px;
+            }
           }
         }
         .comment-info {
           font-size: 12px;
           color: #777;
-          word-break: break-word;
           padding-top: 10px;
           .com-title {
             font-size: 14px;
             padding-bottom: 10px;
             color: #000;
           }
-          .com-name {
-            margin: 10px 10px;
-          }
-          .com-time {
-            margin: 10px 10px;
-          }
-          .com-info {
-            margin: 0 10px;
+          .com-content {
+            margin: 10px 0;
+            .com-name {
+              margin: 10px 10px;
+            }
+            .com-time {
+              margin: 10px 10px;
+            }
+            .com-info {
+              margin: 0 10px;
+            }
           }
         }
         .edit-comment {
@@ -659,7 +819,6 @@ export default {
       border-left: 2px solid red;
       span {
         display: block;
-        max-width: 200px;
         overflow: hidden;
         white-space: nowrap;
         text-overflow: ellipsis;
