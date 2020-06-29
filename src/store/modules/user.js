@@ -1,10 +1,10 @@
 import { login, logout } from '@/api/user'
-import { getToken, setToken, removeToken, getUserId, setUserId, removeUserId } from '@/utils/auth'
+import { getUserName, setUserName, removeUserName, getUserId, setUserId, removeUserId } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 const state = {
   token: getToken(),
-  name: '', // 用户姓名
+  name: getUserName(), // 用户姓名
   roles: [],
   userId: getUserId() // 用户ID
 }
@@ -33,7 +33,9 @@ const actions = {
         .then(response => {
           const { data } = response
           commit('SET_USERID', data.userId)
+          commit('SET_NAME', data.userName)
           setUserId(data.userId)
+          setUserName(data.userName)
           resolve()
         })
         .catch(error => {
@@ -45,8 +47,10 @@ const actions = {
   // 退出
   logout({ commit, dispatch }) {
     return new Promise((resolve, reject) => {
+      commit('SET_NAME', '')
       commit('SET_USERID', '')
       removeUserId()
+      removeUserName()
       dispatch('tagsView/delAllViews', null, { root: true })
       commit('permission/SET_ROUTES_STATE', false, { root: true })
       resolve()
@@ -56,9 +60,11 @@ const actions = {
   // 移除token
   resetToken({ commit }) {
     return new Promise(resolve => {
+      commit('SET_NAME', '')
       commit('SET_USERID', '')
       commit('permission/SET_ROUTES_STATE', false, { root: true })
       removeUserId()
+      removeUserName()
       resolve()
     })
   },
@@ -67,22 +73,15 @@ const actions = {
   changeRoles({ commit, dispatch }, role) {
     return new Promise(async resolve => {
       const token = role + '-token'
-
       commit('SET_TOKEN', token)
       setToken(token)
-
       resetRouter()
-
       // generate accessible routes map based on roles
-
       const accessRoutes = await dispatch('permission/generateRoutes', {}, { root: true })
-
       // dynamically add accessible routes
       router.addRoutes(accessRoutes)
-
       // reset visited views and cached views
       dispatch('tagsView/delAllViews', null, { root: true })
-
       resolve()
     })
   }
