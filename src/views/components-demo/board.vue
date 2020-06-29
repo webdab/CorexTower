@@ -1,13 +1,9 @@
 <template>
   <div class="components-container board">
-    <Kanban :key="1" :list="list1" :group="group" class="kanban todo" :header-text.sync="title" />
-    <Kanban :key="2" :list="list2" :group="group" class="kanban working" :header-text.sync="Working" />
-    <Kanban :key="3" :list="list3" :group="group" class="kanban done" :header-text.sync="Done" />
-    <Kanban :key="4" :list="list4" :group="group" class="kanban bug" :header-text.sync="Bug" />
-    <Kanban :key="5" :list="list5" :group="group" class="kanban add" :header-text.sync="Add" />
-    <div class="addList" v-if="!showEdTitle" @click="addList">+添加清单</div>
+    <Kanban v-for="(item) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
+    <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
-      <el-input v-model="listTitle" placeholder="输入清单名称" />
+      <el-input v-model.lazy.trim="listTitle" placeholder="输入清单名称" />
       <el-button type="primary" class="submit" @click="submit">创建清单</el-button>
       <el-button class="cancleSub" @click="()=>showEdTitle=false">取消</el-button>
     </div>
@@ -17,6 +13,8 @@
 
 <script>
 import Kanban from '@/components/Kanban'
+import { fetchPanelList, addPanel, deletePanel, updatePanel } from '@/api/project'
+import { mapState } from 'vuex'
 export default {
   components: {
     Kanban
@@ -24,32 +22,6 @@ export default {
   data() {
     return {
       group: 'mission',
-      list1: [
-        { name: 'Mission', id: 1 },
-        { name: 'Mission', id: 2 },
-        { name: 'Mission', id: 3 },
-        { name: 'Mission', id: 4 }
-      ],
-      list2: [
-        { name: 'Mission', id: 5 },
-        { name: 'Mission', id: 6 },
-        { name: 'Mission', id: 7 }
-      ],
-      list3: [
-        { name: 'Mission', id: 8 },
-        { name: 'Mission', id: 9 },
-        { name: 'Mission', id: 10 }
-      ],
-      list4: [
-        { name: 'Mission', id: 11 },
-        { name: 'Mission', id: 12 },
-        { name: 'Mission', id: 13 }
-      ],
-      list5: [
-        { name: 'Mission', id: 14 },
-        { name: 'Mission', id: 15 },
-        { name: 'Mission', id: 16 }
-      ],
       title: 'title',
       Working: 'Working',
       Done: 'Done',
@@ -59,7 +31,22 @@ export default {
       showEdTitle: false
     }
   },
+  computed: {
+    panelList() {
+      return this.$store.getters.panelList
+    }
+  },
+  mounted() {
+    this.getList()
+  },
   methods: {
+    getList() {
+      var data = {
+        projectId: 1,
+        userId: 1
+      }
+      this.$store.dispatch('project/fetchPanelList', data)
+    },
     // 添加清单
     addList() {
       this.showEdTitle = true
@@ -68,8 +55,25 @@ export default {
     // 提交新增清单名称
     submit() {
       this.showEdTitle = false
-      console.log('新增清单名称', this.listTitle)
-      this.listTitle = ''
+      if (this.listTitle === '') {
+        this.$message({
+          message: '清单名称不能为空',
+          type: 'error'
+        })
+      } else {
+        var panel = {
+          panelTitle: this.listTitle,
+          projectId: 1,
+          userId: 1
+        }
+        this.listTitle = ''
+        addPanel(panel).then(response => {
+          console.log('addpanel', response.data)
+          if (response.success == true) {
+            this.getList()
+          }
+        })
+      }
     }
   }
 }
@@ -87,7 +91,7 @@ export default {
   margin-bottom: 3px;
   padding-bottom: 5px;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   flex-direction: row;
   align-items: flex-start;
   overflow-x: auto;
@@ -127,31 +131,6 @@ export default {
 }
 .kanban {
   &.todo {
-    .board-column-header {
-      background: #efefef;
-    }
-  }
-  &.working {
-    .board-column-header {
-      background: #efefef;
-    }
-  }
-  &.done {
-    .board-column-header {
-      background: #efefef;
-    }
-  }
-  &.bug {
-    .board-column-header {
-      background: #efefef;
-    }
-  }
-  &.add {
-    .board-column-header {
-      background: #efefef;
-    }
-  }
-  &.new {
     .board-column-header {
       background: #efefef;
     }
