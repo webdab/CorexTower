@@ -18,7 +18,7 @@
       <el-button class="cancleSub" @click="subCancle">取消</el-button>
     </div>
     <el-input v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
-    <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData">
+    <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd">
       <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">
         {{ element.taskName }}
         <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
@@ -111,7 +111,7 @@
               </div>
               <div v-for="item in logs" :key="item.logId" class="dy-content">
                 <span class="dy-time">{{ item.optDate }}</span>
-                <span class="dy-name">用户</span>
+                <span class="dy-name">{{item.userName}}</span>
                 <span class="dy-info">{{ item.optContent }}</span>
               </div>
             </div>
@@ -122,13 +122,13 @@
               </div>
               <div v-for="item in commentList" :key="item.commentId" class="com-content">
                 <span class="com-time">{{ item.createDate }}</span>
-                <span class="com-name">用户</span>
+                <span class="com-name">{{item.userName}}</span>
                 <span>发表评论</span>
                 <span class="com-info">{{ item.commentInfo }}</span>
               </div>
             </div>
             <div class="edit-comment">
-              <span>Bubble</span>
+              <span>{{name}}</span>
               <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
               <div class="com-commit">
                 <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
@@ -145,7 +145,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments } from '@/api/project'
+import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch } from '@/api/project'
 import { string } from 'clipboard'
 import { mapGetters } from 'vuex'
 import '@/utils'
@@ -172,6 +172,9 @@ export default {
       }
     },
     panelId: Number
+  },
+  created() {
+    this.projectId = this.$route.name.substring(1)
   },
   data() {
     return {
@@ -239,11 +242,52 @@ export default {
       missionStart: true,
       currentIndex: '',
       logs: [],
-      commentList: []
+      commentList: [],
+      projectId: '',
+      updateData: {
+        assistUserList: [
+          {
+            createDate: '',
+            deleteFlag: '',
+            deptId: '',
+            deptName: '',
+            email: '',
+            gender: '',
+            loginName: '',
+            mobile: '',
+            modifyDate: '',
+            passwd: '',
+            userId: 0,
+            userName: ''
+          }
+        ],
+        completePercent: '',
+        createDate: '',
+        deleteFlag: '',
+        modifyDate: '',
+        optUserId: '',
+        optUserName: '',
+        panelId: '',
+        planCompleteDate: '',
+        planEndDate: '',
+        planStartDate: '',
+        principalId: '',
+        principalName: '',
+        realCompleteDate: '',
+        realEndDate: '',
+        realStartDate: '',
+        taskCode: '',
+        taskId: '',
+        taskInfo: '',
+        taskLevel: '',
+        taskName: '',
+        taskStatus: ''
+      },
+      currentStatus: '0'
     }
   },
   computed: {
-    ...mapGetters(['userId', 'allUserList'])
+    ...mapGetters(['userId', 'allUserList', 'name'])
   },
   watch: {
     currentTitle: {
@@ -259,15 +303,31 @@ export default {
       // Detail see : https://github.com/RubaXa/Sortable/issues/1012
       dataTransfer.setData('Text', '')
     },
+    // 任务拖动结束，更新面板
+    dragEnd(event) {
+      if (event.added) {
+        this.list[event.added.newIndex].panelId = this.panelId
+        this.updateTaskList(this.list)
+      }
+      if (event.moved) {
+        this.list.splice(event.moved.newIndex, 0, event.moved.element)
+        this.list.splice(event.moved.oldIndex, 1)
+        this.updateTaskList(this.list)
+      }
+    },
+    updateTaskList(list) {
+      const response = updateBatch(list)
+    },
     getList() {
       var data = {
-        projectId: 1,
+        projectId: this.projectId,
         userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
+      console.log('element', element)
       this.centerDialogVisible = true
       this.missionTitle = element.taskName
       this.currentIndex = index
@@ -276,32 +336,29 @@ export default {
       this.time.push(element.planStartDate ? String(element.planStartDate) : '')
       this.time.push(element.planEndDate ? String(element.planEndDate) : '')
       this.describe = element.taskInfo ? element.taskInfo : ''
-      this.level = element.taskLevel
-      var logData = {
-        current: 1,
-        paramObj: {
-          taskId: this.list[this.currentIndex].taskId,
-          userId: this.userId
-        },
-        size: 10
+      if (element.taskLevel) this.level = String(element.taskLevel)
+      if (element.taskStatus === '1') {
+        this.missionStart = !this.missionStart
       }
-      var commentData = {
-        current: 1,
-        paramObj: {
-          taskId: this.list[this.currentIndex].taskId,
-          userId: this.userId
-        },
-        size: 10
-      }
+      this.updateData.assistUserList.userName = this.name
+      this.updateData.panelId = this.panelId
+      this.updateData.taskId = this.list[this.currentIndex].taskId
+      if (element.taskName != undefined) this.updateData.taskName = element.taskName
+      if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
+      if (element.planStartDate != undefined) this.updateData.planStartDate = this.time[0]
+      if (element.planEndDate != undefined) this.updateData.planEndDate = this.time[1]
+      if (element.taskLevel != undefined) this.updateData.taskLevel = this.level
+      if (element.completePercent != undefined) this.updateData.completePercent = this.percent
+      if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       // 获取操作日志
-      const logResponse = await getLog(logData)
+      const logResponse = await getLog(this.list[this.currentIndex].taskId)
       if (logResponse.success === true) {
-        this.logs = logResponse.data.records
+        this.logs = logResponse.data
       }
       // 获取评论列表
-      const commentResponse = await getComments(commentData)
+      const commentResponse = await getComments(this.list[this.currentIndex].taskId)
       if (commentResponse.success === true) {
-        this.commentList = commentResponse.data.records
+        this.commentList = commentResponse.data
       }
     },
     // 编辑清单名称
@@ -318,14 +375,26 @@ export default {
       })
       this.getList()
     },
-    // 改变任务的状态：开始任务、暂停任务、完成任务
-    changeMissionStatus(type) {
+    // 改变任务的状态：初始状态0、开始任务1、暂停任务2、完成任务3
+    async changeMissionStatus(type) {
       if (type === 'pause') {
         this.missionStart = !this.missionStart
+        this.currentStatus = '2'
+        this.updateData.optUserId = this.userId
+        this.updateData.taskStatus = this.currentStatus
+        const response = await updateTask(this.updateData)
       } else if (type === 'play') {
         this.missionStart = !this.missionStart
+        this.currentStatus = '1'
+        this.updateData.optUserId = this.userId
+        this.updateData.taskStatus = this.currentStatus
+        const response = await updateTask(this.updateData)
       } else if (type === 'check') {
         this.checked = !this.checked
+        this.currentStatus = '3'
+        this.updateData.optUserId = this.userId
+        this.updateData.taskStatus = this.currentStatus
+        const response = await updateTask(this.updateData)
       }
     },
     // 删除该条任务
@@ -335,7 +404,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async() => {
+        .then(async () => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
@@ -364,14 +433,14 @@ export default {
     // 提交任务
     async submit() {
       this.showInput = false
-      var data = {
+      var task = {
         panelId: this.panelId,
         taskName: this.textarea,
-        taskStatus: '0'
-        // optUserId: this.userId,
-        // optUserName: 'string'
+        taskStatus: this.currentStatus,
+        optUserId: this.userId,
+        optUserName: this.name
       }
-      const response = await addTask(data)
+      const response = await addTask(task)
       if (response.success === true) {
         this.getList()
       }
@@ -383,12 +452,11 @@ export default {
     },
     // 提交修改的清单名称
     async subTitle() {
-      console.log('修改了title', this.input)
       try {
         var data = {
           panelTitle: this.input,
           panelId: this.panelId,
-          projectId: 1,
+          projectId: this.projectId,
           userId: this.userId
         }
         var response = await updatePanel(data)
@@ -409,12 +477,8 @@ export default {
     },
     // 保存项目描述
     async saveDescribe() {
-      var taskData = {
-        panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
-        taskInfo: this.describe
-      }
-      const response = await updateTask(taskData)
+      this.updateData.taskInfo = this.describe
+      const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.showDescribe = false
         this.describe = ''
@@ -423,12 +487,8 @@ export default {
     },
     // 设置任务标题
     async submitMissionTitle() {
-      var taskData = {
-        panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
-        taskName: this.missionTitle
-      }
-      const response = await updateTask(taskData)
+      this.updateData.taskName = this.missionTitle
+      const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.getList()
       }
@@ -437,37 +497,23 @@ export default {
     项目开始时间与结束时间
      */
     async setTimeRound() {
-      var timeData = {
-        panelId: this.panelId,
-        planStartDate: this.time != null && this.time[0],
-        planEndDate: this.time != null && this.time[1],
-        taskId: this.list[this.currentIndex].taskId
-      }
       if (this.time == null) return
-      const response = await updateTask(timeData)
+      this.updateData.planStartDate = this.time[0]
+      this.updateData.planEndDate = this.time[1]
+      const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.getList()
       }
     },
     // 修改任务等级
     async submitLevel() {
-      var levelData = {
-        panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
-        taskLevel: this.level
-      }
-      const response = await updateTask(levelData)
+      this.updateData.taskLevel = this.level
+      const response = await updateTask(this.updateData)
     },
     // 设置项目进度百分比
     async submitPercent() {
-      console.log('precent', this.percent)
-      var percentData = {
-        completePercent: this.percent,
-        panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
-        taskName: this.missionTitle
-      }
-      const response = await updateTask(percentData)
+      this.updateData.completePercent = this.percent
+      const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.getList()
       }
@@ -483,17 +529,9 @@ export default {
       const response = await addComment(commentData)
       if (response.success === true) {
         this.comments = ''
-        var logData = {
-          current: 1,
-          paramObj: {
-            taskId: this.list[this.currentIndex].taskId,
-            userId: this.userId
-          },
-          size: 10
-        }
-        const commentResponse = await getComments(commentData)
+        const commentResponse = await getComments(this.list[this.currentIndex].taskId)
         if (commentResponse.success === true) {
-          this.commentList = commentResponse.data.records
+          this.commentList = commentResponse.data
         }
       }
     }
@@ -752,6 +790,7 @@ export default {
           padding-bottom: 20px;
           .dy-content {
             margin: 10px 0px;
+            padding-left: 26px;
             .dy-title {
               font-size: 14px;
               padding-bottom: 10px;

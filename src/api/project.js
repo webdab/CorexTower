@@ -87,22 +87,20 @@ export function updateTask(data) {
 /*
 获取任务操作日志
  */
-export function getLog(data) {
+export function getLog(taskId) {
   return request({
-    url: '/task/opt/log/page',
-    method: 'post',
-    data
+    url: `/task/opt/log/listByTaskId/${taskId}`,
+    method: 'post'
   })
 }
 
 /*
 获取评论列表
 */
-export function getComments(data) {
+export function getComments(taskId) {
   return request({
-    url: '/comment/page',
-    method: 'post',
-    data
+    url: `/comment/listByTaskId/${taskId}`,
+    method: 'post'
   })
 }
 
@@ -114,5 +112,16 @@ export function addComment(comment) {
     url: '/comment/add',
     method: 'post',
     data: comment
+  })
+}
+
+/*
+批量更新任务
+ */
+export function updateBatch(data) {
+  return request({
+    url: '/task/updateBatch',
+    method: 'post',
+    data
   })
 }
