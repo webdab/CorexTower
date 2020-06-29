@@ -23,7 +23,8 @@ export default {
     return {
       group: 'mission',
       listTitle: '',
-      showEdTitle: false
+      showEdTitle: false,
+      projectId: ''
     }
   },
   computed: {
@@ -34,13 +35,16 @@ export default {
       return this.$store.getters.panelList
     }
   },
+  created() {
+    this.projectId = this.$route.name.substring(1)
+  },
   mounted() {
     this.getList()
   },
   methods: {
     getList() {
       var data = {
-        projectId: 1,
+        projectId: this.projectId,
         userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
@@ -61,7 +65,7 @@ export default {
       } else {
         var panel = {
           panelTitle: this.listTitle,
-          projectId: 1,
+          projectId: this.projectId,
           userId: this.userId
         }
         this.listTitle = ''
