@@ -27,6 +27,9 @@ export default {
     }
   },
   computed: {
+    ...mapState({
+      userId: state => state.user.userId
+    }),
     panelList() {
       return this.$store.getters.panelList
     }
@@ -38,7 +41,7 @@ export default {
     getList() {
       var data = {
         projectId: 1,
-        userId: 1
+        userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
     },
@@ -59,7 +62,7 @@ export default {
         var panel = {
           panelTitle: this.listTitle,
           projectId: 1,
-          userId: 1
+          userId: this.userId
         }
         this.listTitle = ''
         addPanel(panel).then(response => {

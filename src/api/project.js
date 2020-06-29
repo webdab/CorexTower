@@ -6,10 +6,6 @@ import request from '@/utils/request'
   "userId": 0
 } */
 export function fetchPanelList(data) {
-  var data = {
-    projectId: 1,
-    userId: 1
-  }
   return request({
     url: '/panel/list',
     method: 'post',

@@ -17,8 +17,8 @@ export function parseTime(time, cFormat) {
   if (typeof time === 'object') {
     date = time
   } else {
-    if ((typeof time === 'string')) {
-      if ((/^[0-9]+$/.test(time))) {
+    if (typeof time === 'string') {
+      if (/^[0-9]+$/.test(time)) {
         // support "1548221490638"
         time = parseInt(time)
       } else {
@@ -28,7 +28,7 @@ export function parseTime(time, cFormat) {
       }
     }
 
-    if ((typeof time === 'number') && (time.toString().length === 10)) {
+    if (typeof time === 'number' && time.toString().length === 10) {
       time = time * 1000
     }
     date = new Date(time)
@@ -45,7 +45,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value ] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -80,20 +82,43 @@ export function formatTime(time, option) {
   if (option) {
     return parseTime(time, option)
   } else {
-    return (
-      d.getMonth() +
-      1 +
-      '月' +
-      d.getDate() +
-      '日' +
-      d.getHours() +
-      '时' +
-      d.getMinutes() +
-      '分'
-    )
+    return d.getMonth() + 1 + '月' + d.getDate() + '日' + d.getHours() + '时' + d.getMinutes() + '分'
   }
 }
+/* 
+日期转化 
+ */
+String.prototype.dateFormat = Number.prototype.dateFormat = function(fmt = 'yyyy-mm-dd HH:MM:SS') {
+  let date = new Date(this)
+  let fmtDate = fmt
+  // 转化时间
+  let o = {
+    'y+': date.getFullYear(),
+    'm+': date.getMonth() + 1,
+    'd+': date.getDate(),
+    'H+': date.getHours(),
+    'M+': date.getMinutes(),
+    'S+': date.getSeconds()
+  }
 
+  for (let key in o) {
+    // 正则
+    let rep = new RegExp(`${key}`)
+
+    // 是所需要的格式
+    if (rep.test(fmt)) {
+      fmtDate = fmtDate.match(rep) // 有匹配到所对应格式
+        ? fmtDate.replace(
+            fmt.match(rep)[0], // 将原来的格式进行值的替换 例如 yyyy - 2019
+            // String(o[key]).padStart(fmt.match(rep)[0].length, "0") // ES2017写法
+            String(o[key]).length === 1 ? `0${o[key]}` : `${o[key]}` // 例 小时为 7 时，在前面加上 0 ，变成 07
+          )
+        : ''
+    }
+  }
+
+  return fmtDate
+}
 /**
  * @param {string} url
  * @returns {Object}
@@ -124,7 +149,7 @@ export function byteLength(str) {
     const code = str.charCodeAt(i)
     if (code > 0x7f && code <= 0x7ff) s++
     else if (code > 0x7ff && code <= 0xffff) s += 2
-    if (code >= 0xDC00 && code <= 0xDFFF) i--
+    if (code >= 0xdc00 && code <= 0xdfff) i--
   }
   return s
 }
@@ -226,9 +251,7 @@ export function toggleClass(element, className) {
   if (nameIndex === -1) {
     classString += '' + className
   } else {
-    classString =
-      classString.substr(0, nameIndex) +
-      classString.substr(nameIndex + className.length)
+    classString = classString.substr(0, nameIndex) + classString.substr(nameIndex + className.length)
   }
   element.className = classString
 }
