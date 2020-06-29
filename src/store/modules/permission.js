@@ -1,5 +1,6 @@
 import router, { resetRouter, asyncRoutes, constantRoutes } from '@/router'
-import { projectmanage } from '@/router/modules/projectmanage'
+import { getProjectListByUserId } from '@/api/setting-project'
+import Layout from '@/layout'
 
 /**
  * Use meta.role to determine if the current user has permission
@@ -12,6 +13,37 @@ function hasPermission(roles, route) {
   } else {
     return true
   }
+}
+
+/**
+ * 把项目列表装成routes要求的格式
+ * @param {*} routes
+ */
+export function getProjectRoutes(pObj) {
+  const projectManageRouter = {
+    path: '/projectmanage',
+    component: Layout,
+    // redirect: 'noRedirect',
+    name: 'projectmanage',
+    meta: {
+      title: '项目管理',
+      icon: 'list'
+    },
+    children: []
+  }
+  if (pObj && pObj.data.length > 0) {
+    pObj.data.forEach((item, index) => {
+      projectManageRouter.children.push({
+        path: 'p' + item.projectId,
+        projectId: item.projectId,
+        component: () => import('@/views/dragKanban/index'),
+        name: 'p' + item.projectId,
+        meta: { title: item.projectName }
+      })
+    })
+  }
+
+  return [projectManageRouter]
 }
 
 /**
@@ -37,29 +69,41 @@ export function filterAsyncRoutes(routes, roles) {
 
 const state = {
   routes: [],
-  addRoutes: []
+  addRoutes: [],
+  isMountedRoutes: false // 动态路由加载状态
 }
 
 const mutations = {
   SET_ROUTES: (state, routes) => {
     state.addRoutes = routes
     state.routes = constantRoutes.concat(routes)
+  },
+  SET_ROUTES_STATE: (state, flag) => {
+    state.isMountedRoutes = flag
   }
 }
 
 const actions = {
   // 生成路由
-  generateRoutes({ commit }, obj) {
-    return new Promise(resolve => {
+  generateRoutes({ commit, rootState }, roles) {
+    return new Promise(async resolve => {
       let accessedRoutes = []
-      if (obj.roles.includes('admin')) {
+      let pObj
+      try {
+        pObj = await getProjectListByUserId(rootState.user.userId) // 获取项目列表信息
+      } catch (error) {
+        pObj = null
+      }
+      const projectRoutes = getProjectRoutes(pObj) // 对路由格式进行处理
+
+      if (roles.includes('admin')) {
         // 动态添加管理项目管理路由
-        accessedRoutes = projectmanage(obj.projectList).concat(asyncRoutes)
+        accessedRoutes = projectRoutes.concat(asyncRoutes)
       } else {
         accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
       }
       commit('SET_ROUTES', accessedRoutes)
-
+      commit('SET_ROUTES_STATE', true)
       resolve(accessedRoutes)
     })
   },
@@ -68,19 +112,13 @@ const actions = {
   changeRoutes({ commit, dispatch }, addRouteObj) {
     return new Promise(async resolve => {
       resetRouter()
-
       const pmRoute = state.routes.find(item => item.name == 'projectmanage')
-      console.log(pmRoute)
       pmRoute.children.push({
         path: 'p' + addRouteObj.id,
         component: () => import('@/views/projectmanage/index'),
         name: addRouteObj.name,
         meta: { title: addRouteObj.name }
       })
-
-      console.log(11, state)
-      console.log(22, router)
-
       router.addRoutes([pmRoute])
 
       resolve()

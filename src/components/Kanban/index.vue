@@ -21,10 +21,10 @@
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData">
       <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">
         {{ element.taskName }}
-        <span>截止时间:{{element.planStartDate}}-{{element.planEndDate}}</span>
+        <span>截止时间:{{ element.planStartDate }}-{{ element.planEndDate }}</span>
         <span>负责人:-</span>
         <span>协作人:-</span>
-        <span>完成百分比:{{element.completePercent}}%</span>
+        <span>完成百分比:{{ element.completePercent }}%</span>
       </div>
     </draggable>
     <div v-show="centerDialogVisible" class="dialog-page">
@@ -94,8 +94,7 @@
           <div class="advance">
             <span>完成百分比%</span>
             <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
-              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.label">
-              </el-option>
+              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </div>
         </div>
@@ -105,10 +104,10 @@
               <i class="el-icon-edit" />
               <span>操作日志</span>
             </div>
-            <div class="dy-content" v-for="item in logs" :key="item.logId">
-              <span class="dy-time">{{item.optDate}}</span>
+            <div v-for="item in logs" :key="item.logId" class="dy-content">
+              <span class="dy-time">{{ item.optDate }}</span>
               <span class="dy-name">用户</span>
-              <span class="dy-info">{{item.optContent}}</span>
+              <span class="dy-info">{{ item.optContent }}</span>
             </div>
           </div>
           <div class="comment-info">
@@ -116,11 +115,11 @@
               <i class="el-icon-chat-line-round" />
               <span>评论区</span>
             </div>
-            <div class="com-content" v-for="item in commentList" :key="item.commentId">
-              <span class="com-time">{{item.createDate}}</span>
+            <div v-for="item in commentList" :key="item.commentId" class="com-content">
+              <span class="com-time">{{ item.createDate }}</span>
               <span class="com-name">用户</span>
               <span>发表评论</span>
-              <span class="com-info">{{item.commentInfo}}</span>
+              <span class="com-info">{{ item.commentInfo }}</span>
             </div>
           </div>
           <div class="edit-comment">
@@ -309,7 +308,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async () => {
+        .then(async() => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {

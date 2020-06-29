@@ -52,7 +52,7 @@ export function updatePanel(data) {
   })
 }
 
-/* 
+/*
 添加任務
 {
   "panelId": 0,
@@ -66,7 +66,7 @@ export function addTask(data) {
     data
   })
 }
-/* 
+/*
 删除任务表
 */
 export function deleteTask(id) {
@@ -89,7 +89,7 @@ export function updateTask(data) {
 }
 
 /*
-获取任务操作日志 
+获取任务操作日志
  */
 export function getLog(data) {
   return request({
@@ -99,7 +99,7 @@ export function getLog(data) {
   })
 }
 
-/* 
+/*
 获取评论列表
 */
 export function getComments(data) {
@@ -110,7 +110,7 @@ export function getComments(data) {
   })
 }
 
-/* 
+/*
 新增评论
 */
 export function addComment(comment) {

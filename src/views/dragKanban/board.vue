@@ -22,22 +22,17 @@ export default {
   data() {
     return {
       group: 'mission',
-      title: 'title',
-      Working: 'Working',
-      Done: 'Done',
-      Bug: 'Bug',
-      Add: 'Add',
       listTitle: '',
       showEdTitle: false
     }
-  },
-  mounted() {
-    this.getList()
   },
   computed: {
     panelList() {
       return this.$store.getters.panelList
     }
+  },
+  mounted() {
+    this.getList()
   },
   methods: {
     getList() {
