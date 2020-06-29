@@ -27,6 +27,7 @@
         <span>完成百分比:{{ element.completePercent }}%</span>
       </div>
     </draggable>
+    <!-- modal -->
     <div v-show="centerDialogVisible" class="dialog-page">
       <div class="page-container">
         <div class="page-header">
@@ -36,98 +37,103 @@
             <span>{{ headerText }}</span>
           </div>
           <div class="right">
-            <i v-show="!missionStart" class="el-icon-video-pause" @click="changeMissionStatus('pause')" />
-            <i v-show="missionStart" class="el-icon-video-play" @click="changeMissionStatus('play')" />
-            <i class="el-icon-delete" @click="deleteMission" />
-            <i class="el-icon-close" @click="()=>centerDialogVisible=false" />
+            <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
+            <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
+            <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
+            <el-button circle size="mini"> <i class="el-icon-close" @click="()=>centerDialogVisible=false" /></el-button>
           </div>
         </div>
-        <div class="page-content">
-          <input class="checkbox" type="checkbox" :checked="checked" @change="changeMissionStatus('check')">
-          <div class="main-content">
-            <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
-            <div class="nav">
-              <div>
-                <i class="el-icon-user" />
-                <el-select v-model="leader" filterable size="mini" placeholder="添加负责人">
-                  <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
+        <div class="modal-content">
+          <div class="page-content">
+            <div class="left-icon">
+              <input class="checkbox" type="checkbox" :checked="checked" @change="changeMissionStatus('check')">
+            </div>
+            <div class="main-content">
+              <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
+              <!-- 负责人、协作人、日期、等级 -->
+              <div class="nav">
+                <div>
+                  <i class="el-icon-user-solid" />
+                  <el-select v-model="leader" filterable size="mini" placeholder="添加负责人" clearable>
+                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
+                  </el-select>
+                </div>
+                <div style="margin-left:30px">
+                  <svg-icon icon-class="peoples" />
+                  <el-select v-model="collaborators" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable>
+                    <el-option v-for="item in allUserList" :key="item.value" :label="item.label" :value="item.value" />
+                  </el-select>
+                </div>
+                <div class="pro-time" style="margin-left:30px">
+                  <el-date-picker v-model="time" size="mini" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
+                </div>
+                <div style="margin-left:30px">
+                  <i class="el-icon-warning-outline" />
+                  <el-select v-model="level" size="mini" placeholder="优先级" @change="submitLevel">
+                    <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.value">
+                      <span :style="{'color':item.color}">{{ item.label }}</span>
+                    </el-option>
+                  </el-select>
+                </div>
               </div>
-              <div>
-                <svg-icon icon-class="peoples" />
-                <el-select v-model="collaborators" filterable multiple collapse-tags size="mini" placeholder="添加协作人">
-                  <el-option v-for="item in options1" :key="item.value" :label="item.label" :value="item.value" />
-                </el-select>
+            </div>
+          </div>
+          <div class="describe">
+            <div class="edit">
+              <i class="el-icon-document" />
+              <span style="margin-left:16px">添加任务描述</span>
+              <a @click="()=>showDescribe=true">编辑</a>
+            </div>
+            <div v-show="showDescribe" class="edit-textarea">
+              <el-input v-model="describe" type="textarea" :rows="4" placeholder="请输入内容" />
+              <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
+              <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
+            </div>
+            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
+          </div>
+          <div class="infos">
+            <div>
+              <i class="el-icon-postcard" />
+              <span class="group-title">任务详情</span>
+            </div>
+            <div class="advance">
+              <span style="margin-left:20px">完成百分比%</span>
+              <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
+                <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value" />
+              </el-select>
+            </div>
+          </div>
+          <div class="comments">
+            <div class="dynamic">
+              <div class="dy-title">
+                <i class="el-icon-edit" />
+                <span class="group-title">操作日志</span>
               </div>
-              <div class="pro-time">
-                <el-date-picker v-model="time" size="mini" type="datetimerange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
-              </div>
-              <div>
-                <i class="el-icon-warning-outline" />
-                <el-select v-model="level" size="mini" placeholder="优先级" @change="submitLevel">
-                  <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.value">
-                    <span>{{ item.label }}</span>
-                  </el-option>
-                </el-select>
+              <div v-for="item in logs" :key="item.logId" class="dy-content">
+                <span class="dy-time">{{ item.optDate }}</span>
+                <span class="dy-name">用户</span>
+                <span class="dy-info">{{ item.optContent }}</span>
               </div>
             </div>
-          </div>
-        </div>
-        <div class="describe">
-          <div class="edit">
-            <i class="el-icon-document" />
-            <span>添加任务描述</span>
-            <a @click="()=>showDescribe=true">编辑</a>
-          </div>
-          <div v-show="showDescribe">
-            <el-input v-model="describe" type="textarea" :rows="4" placeholder="请输入内容" />
-            <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
-            <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
-          </div>
-          <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
-        </div>
-        <div class="infos">
-          <div>
-            <i class="el-icon-postcard" />
-            <span>任务详情</span>
-          </div>
-          <div class="advance">
-            <span>完成百分比%</span>
-            <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
-              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value" />
-            </el-select>
-          </div>
-        </div>
-        <div class="comments">
-          <div class="dynamic">
-            <div class="dy-title">
-              <i class="el-icon-edit" />
-              <span>操作日志</span>
+            <div class="comment-info">
+              <div class="com-title">
+                <i class="el-icon-chat-line-round" />
+                <span class="group-title">评论区</span>
+              </div>
+              <div v-for="item in commentList" :key="item.commentId" class="com-content">
+                <span class="com-time">{{ item.createDate }}</span>
+                <span class="com-name">用户</span>
+                <span>发表评论</span>
+                <span class="com-info">{{ item.commentInfo }}</span>
+              </div>
             </div>
-            <div v-for="item in logs" :key="item.logId" class="dy-content">
-              <span class="dy-time">{{ item.optDate }}</span>
-              <span class="dy-name">用户</span>
-              <span class="dy-info">{{ item.optContent }}</span>
-            </div>
-          </div>
-          <div class="comment-info">
-            <div class="com-title">
-              <i class="el-icon-chat-line-round" />
-              <span>评论区</span>
-            </div>
-            <div v-for="item in commentList" :key="item.commentId" class="com-content">
-              <span class="com-time">{{ item.createDate }}</span>
-              <span class="com-name">用户</span>
-              <span>发表评论</span>
-              <span class="com-info">{{ item.commentInfo }}</span>
-            </div>
-          </div>
-          <div class="edit-comment">
-            <span>Bubble</span>
-            <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
-            <div class="com-commit">
-              <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
-              <el-button type="info" size="small">取消</el-button>
+            <div class="edit-comment">
+              <span>Bubble</span>
+              <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
+              <div class="com-commit">
+                <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
+                <el-button type="info" size="small">取消</el-button>
+              </div>
             </div>
           </div>
         </div>
@@ -141,7 +147,7 @@
 import draggable from 'vuedraggable'
 import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments } from '@/api/project'
 import { string } from 'clipboard'
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import '@/utils'
 export default {
   name: 'DragKanbanDemo',
@@ -169,47 +175,25 @@ export default {
   },
   data() {
     return {
-      options1: [
-        {
-          value: 'Beijing',
-          label: '北京'
-        },
-        {
-          value: 'Shanghai',
-          label: '上海'
-        },
-        {
-          value: 'Nanjing',
-          label: '南京'
-        },
-        {
-          value: 'Chengdu',
-          label: '成都'
-        },
-        {
-          value: 'Shenzhen',
-          label: '深圳'
-        },
-        {
-          value: 'Guangzhou',
-          label: '广州'
-        }
-      ],
       dangers: [
         {
-          value: '0',
+          color: '#DF3C2F',
+          value: '3',
           label: '最高'
         },
         {
-          value: '1',
+          color: '#F5941D',
+          value: '2',
           label: '较高'
         },
         {
-          value: '2',
+          color: '#999999',
+          value: '1',
           label: '一般'
         },
         {
-          value: '3',
+          color: '#58B837',
+          value: '0',
           label: '较低'
         }
       ],
@@ -259,9 +243,7 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      userId: state => state.user.userId
-    })
+    ...mapGetters(['userId', 'allUserList'])
   },
   watch: {
     currentTitle: {
@@ -353,7 +335,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async () => {
+        .then(async() => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
@@ -385,7 +367,7 @@ export default {
       var data = {
         panelId: this.panelId,
         taskName: this.textarea,
-        taskStatus: '0',
+        taskStatus: '0'
         // optUserId: this.userId,
         // optUserName: 'string'
       }
@@ -597,9 +579,9 @@ export default {
   }
   .dialog-page {
     width: 1110px;
-    height: 70%;
+    height: 80%;
     position: fixed;
-    margin-left: 100px;
+    // margin-left: 100px;
     top: 50%;
     left: 50%;
     margin-top: 20px;
@@ -625,37 +607,60 @@ export default {
         box-sizing: border-box;
         border-bottom: 1px solid #efefef;
         .right {
+          .el-button {
+            padding: 4px;
+            border: none;
+            margin-left: 4px;
+          }
           i {
-            margin: 0 8px;
+            font-size: 20px;
           }
           .el-icon-video-pause {
             color: #409eff;
           }
           .el-icon-video-play {
-            color: #409eff;
+            color: #777777;
           }
           .el-icon-delete {
             color: red;
           }
         }
       }
+      .modal-content {
+        padding-left: 10px;
+        .left-icon {
+          width: 50px;
+          text-align: center;
+        }
+        i {
+          font-size: 16px;
+        }
+        .group-title {
+          font-size: 14px;
+          margin-left: 16px;
+          color: #555;
+          font-weight: 700;
+        }
+      }
       .page-content {
         padding: 14px 0;
         border-bottom: 1px solid #efefef;
         display: flex;
+
         .checkbox {
           width: 30px;
           height: 30px;
           font-size: 24px;
-          font-weight: 400;
+          font-weight: 700;
           line-height: 24px;
-          margin: 0 14px;
         }
         .main-content {
           width: 100%;
           input {
             padding: 3px 0;
             font-size: 20px;
+            font-weight: 700;
+            color: #333;
             line-height: 24px;
             vertical-align: baseline;
             border: 0;
@@ -670,7 +675,7 @@ export default {
             color: #999;
             padding-right: 20px;
             margin-top: 10px;
-            justify-content: space-between;
+            // justify-content: space-between;
             align-items: center;
             div {
               cursor: pointer;
@@ -707,6 +712,9 @@ export default {
               text-decoration: none;
             }
           }
+        }
+        .edit-textarea {
+          padding-left: 40px;
         }
       }
       .infos {
@@ -793,7 +801,7 @@ export default {
             margin-left: 12px;
             width: 80%;
             min-height: 0;
-            height: 48px;
+            height: 60px;
             box-sizing: border-box;
             border: 0;
             padding: 10px 15px;
@@ -836,6 +844,7 @@ export default {
       padding: 5px 10px;
       box-sizing: border-box;
       box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
       border-left: 2px solid red;
       span {
         display: block;

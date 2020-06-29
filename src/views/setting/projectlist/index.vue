@@ -82,7 +82,7 @@
 
 <script>
 import { getList, addProject, updateProject, deleteProject } from '@/api/setting-project'
-import { getList as getUserList } from '@/api/setting-user'
+import { getAllList as getAllUserList } from '@/api/setting-user'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 import router from '@/router'
@@ -141,7 +141,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getUserList()
+    this.getAllUserList()
   },
   methods: {
     // 查询
@@ -159,10 +159,10 @@ export default {
         .catch(() => {})
     },
     // 查询用户列表
-    getUserList() {
+    getAllUserList() {
       this.listLoading = true
-      getUserList(this.listQuery).then(response => {
-        this.options = response.data.records
+      getAllUserList({}).then(response => {
+        this.options = response.data
       })
     },
     // 搜索

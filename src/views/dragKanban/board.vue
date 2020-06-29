@@ -36,6 +36,7 @@ export default {
   },
   mounted() {
     this.getList()
+    this.getUserList()
   },
   methods: {
     getList() {
@@ -44,6 +45,9 @@ export default {
         userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
+    },
+    getUserList() {
+      this.$store.dispatch('project/fetchAllUserList', {})
     },
     // 添加清单
     addList() {

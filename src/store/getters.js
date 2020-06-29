@@ -12,6 +12,7 @@ const getters = {
   isMountedRoutes: state => state.permission.isMountedRoutes,
   permission_routes: state => state.permission.routes,
   userId: state => state.user.userId,
-  panelList: state => state.project.panelList
+  panelList: state => state.project.panelList,
+  allUserList: state => state.project.allUserList
 }
 export default getters

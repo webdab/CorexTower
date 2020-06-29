@@ -8,6 +8,14 @@ export function getList(data) {
   })
 }
 
+export function getAllList(data) {
+  return request({
+    url: '/user/list',
+    method: 'post',
+    data
+  })
+}
+
 export function addUser(data) {
   return request({
     url: '/user/add',
