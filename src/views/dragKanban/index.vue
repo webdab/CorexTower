@@ -35,12 +35,14 @@ export default {
     }
   },
   created() {
+    console.log(this.$route.name.substring(1))
     // init the default selected tab
     const tab = this.$route.query.tab
     if (tab) {
       this.activeName = tab
     }
   },
+  mounted() {},
   methods: {}
 }
 </script>

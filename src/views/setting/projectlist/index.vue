@@ -191,31 +191,16 @@ export default {
     addProject() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          // 处理人员信息格式
-          const userIdList = []
-          const userNames = []
-          if (this.temp.projecMember.length > 0) {
-            this.temp.projecMember.forEach(element => {
-              userIdList.push(element.userId)
-              userNames.push(element.userName)
-            })
-          }
           addProject({
             projectName: this.temp.projectName,
             startDate: this.temp.pTime[0],
             endDate: this.temp.pTime[1],
-            userNames: userNames.join(','),
-            userIdList
+            userList: this.temp.projecMember
           }).then(() => {
             this.dialogFormVisible = false
             this.getList()
-
             // 在这里获取异步路由
-            const roles = ['admin']
-            this.$store.dispatch('permission/generateRoutes', roles).then(accessRoutes => {
-              router.addRoutes(accessRoutes)
-            })
-
+            this.changeRoute()
             this.$notify({
               title: 'Success',
               message: '项目新增成功',
@@ -228,7 +213,6 @@ export default {
     },
     // 编辑打开模态框
     handleUpdate(row) {
-      console.log(row)
       this.temp = Object.assign({
         projectId: row.projectId,
         projectName: row.projectName,
@@ -245,23 +229,16 @@ export default {
     updateProject() {
       this.$refs['dataForm'].validate(valid => {
         if (valid) {
-          const userIdList = []
-          const userNames = []
-          if (this.temp.projecMember.length > 0) {
-            this.temp.projecMember.forEach(element => {
-              userIdList.push(element.userId)
-              userNames.push(element.userName)
-            })
-          }
           updateProject({
             projectName: this.temp.projectName,
             startDate: this.temp.pTime[0],
             endDate: this.temp.pTime[1],
-            userNames: userNames.join(','),
-            userIdList
+            projectId: this.temp.projectId,
+            userList: this.temp.projecMember
           }).then(() => {
             this.dialogFormVisible = false
             this.getList()
+            this.changeRoute()
             this.$notify({
               title: 'Success',
               message: '项目修改成功',
@@ -277,6 +254,7 @@ export default {
       deleteProject(row.projectId).then(() => {
         this.dialogFormVisible = false
         this.getList()
+        this.changeRoute()
         this.$notify({
           title: 'Success',
           message: '项目删除成功',
@@ -284,6 +262,14 @@ export default {
           duration: 2000
         })
       })
+    },
+    // 更新路由
+    changeRoute() {
+      const roles = ['admin']
+      this.$store.dispatch('permission/generateRoutes', roles).then(accessRoutes => {
+        router.addRoutes(accessRoutes)
+      })
+      this.$store.dispatch('tagsView/delAllViews', null, { root: true })
     }
   }
 }

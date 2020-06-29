@@ -25,6 +25,7 @@ export function getProjectRoutes(pObj) {
     component: Layout,
     // redirect: 'noRedirect',
     name: 'projectmanage',
+    alwaysShow: true,
     meta: {
       title: '项目管理',
       icon: 'list'
@@ -105,23 +106,6 @@ const actions = {
       commit('SET_ROUTES', accessedRoutes)
       commit('SET_ROUTES_STATE', true)
       resolve(accessedRoutes)
-    })
-  },
-
-  // 改变路由
-  changeRoutes({ commit, dispatch }, addRouteObj) {
-    return new Promise(async resolve => {
-      resetRouter()
-      const pmRoute = state.routes.find(item => item.name == 'projectmanage')
-      pmRoute.children.push({
-        path: 'p' + addRouteObj.id,
-        component: () => import('@/views/projectmanage/index'),
-        name: addRouteObj.name,
-        meta: { title: addRouteObj.name }
-      })
-      router.addRoutes([pmRoute])
-
-      resolve()
     })
   }
 }
