@@ -65,7 +65,7 @@
               <div>
                 <i class="el-icon-warning-outline" />
                 <el-select v-model="level" size="mini" placeholder="优先级" @change="submitLevel">
-                  <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.value">
+                  <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.label">
                     <span>{{ item.label }}</span>
                   </el-option>
                 </el-select>
@@ -94,7 +94,7 @@
           <div class="advance">
             <span>完成百分比%</span>
             <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
-              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value">
+              <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.label">
               </el-option>
             </el-select>
           </div>
@@ -384,7 +384,7 @@ export default {
       this.missionTitle = element.taskName
       this.currentIndex = index
       this.percent = element.completePercent ? String(element.completePercent) : ''
-      this.time=[]
+      this.time = []
       this.time.push(element.planStartDate ? String(element.planStartDate) : '')
       this.time.push(element.planEndDate ? String(element.planEndDate) : '')
       this.describe = element.taskInfo ? element.taskInfo : ''
@@ -456,6 +456,15 @@ export default {
       if (response.success === true) {
         this.getList()
       }
+    },
+    // 修改任务等级
+    async submitLevel() {
+      var levelData = {
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        taskLevel: this.level
+      }
+      const response = await updateTask(levelData)
     },
     // 设置项目进度百分比
     async submitPercent() {
