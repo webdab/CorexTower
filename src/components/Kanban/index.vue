@@ -54,14 +54,14 @@
               <div class="nav">
                 <div>
                   <i class="el-icon-user-solid" />
-                  <el-select v-model="leader" filterable size="mini" placeholder="添加负责人" clearable>
+                  <el-select v-model="updateData.principalId" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo">
                     <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
                   </el-select>
                 </div>
                 <div style="margin-left:30px">
                   <svg-icon icon-class="peoples" />
-                  <el-select v-model="collaborators" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable>
-                    <el-option v-for="item in allUserList" :key="item.value" :label="item.label" :value="item.value" />
+                  <el-select v-model="updateData.assistUserList" value-key="userId" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable @change="changeTaskInfo">
+                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item" />
                   </el-select>
                 </div>
                 <div class="pro-time" style="margin-left:30px">
@@ -231,8 +231,6 @@ export default {
       listMenu: [],
       checked: false,
       time: [],
-      leader: '',
-      collaborators: [], // 协作人员
       level: '',
       showEditTitle: false,
       showDescribe: false,
@@ -246,20 +244,20 @@ export default {
       projectId: '',
       updateData: {
         assistUserList: [
-          {
-            createDate: '',
-            deleteFlag: '',
-            deptId: '',
-            deptName: '',
-            email: '',
-            gender: '',
-            loginName: '',
-            mobile: '',
-            modifyDate: '',
-            passwd: '',
-            userId: 0,
-            userName: ''
-          }
+          // {
+          //   createDate: '',
+          //   deleteFlag: '',
+          //   deptId: '',
+          //   deptName: '',
+          //   email: '',
+          //   gender: '',
+          //   loginName: '',
+          //   mobile: '',
+          //   modifyDate: '',
+          //   passwd: '',
+          //   userId: 0,
+          //   userName: ''
+          // }
         ],
         completePercent: '',
         createDate: '',
@@ -488,6 +486,13 @@ export default {
     // 设置任务标题
     async submitMissionTitle() {
       this.updateData.taskName = this.missionTitle
+      const response = await updateTask(this.updateData)
+      if (response.success === true) {
+        this.getList()
+      }
+    },
+    // 修改任务详情
+    async changeTaskInfo() {
       const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.getList()
