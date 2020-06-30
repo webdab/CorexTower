@@ -1,5 +1,5 @@
 <template>
-  <div class="components-container board">
+  <div class="components-container board" v-loading="isLoading">
     <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
     <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
@@ -14,7 +14,8 @@
 <script>
 import Kanban from '@/components/Kanban'
 import { fetchPanelList, addPanel, deletePanel, updatePanel } from '@/api/project'
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
+import { Loading } from 'element-ui'
 export default {
   components: {
     Kanban
@@ -28,12 +29,7 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      userId: state => state.user.userId
-    }),
-    panelList() {
-      return this.$store.getters.panelList
-    }
+    ...mapGetters(['userId', 'isLoading', 'panelList'])
   },
   created() {
     this.projectId = this.$route.name.substring(1)
@@ -41,6 +37,7 @@ export default {
   mounted() {
     this.getList()
     this.getUserList()
+    console.log('isLoading', this.isLoading)
   },
   methods: {
     getList() {
