@@ -21,8 +21,8 @@ const actions = {
       }
     })
   },
-  getProgectUserList({ commit }, data) {
-    getProgectUserList(data).then(response => {
+  getProgectUserList({ commit }, pid) {
+    getProgectUserList(pid).then(response => {
       commit('SET_USER_LIST', response.data)
     })
   }

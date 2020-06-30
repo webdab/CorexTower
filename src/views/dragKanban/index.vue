@@ -3,8 +3,8 @@
     <el-tabs v-model="activeName" style="margin:10px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card">
       <el-tab-pane v-for="item in tabMapOptions" :key="item.key" :label="item.label" :name="item.key">
         <keep-alive>
-          <board v-if="'kb'==item.key" :type="item.key" />
-          <chart v-if="'jz'==item.key" :type="item.key" />
+          <board v-if="'kb'==item.key" :type="item.key" ref="board" />
+          <chart v-if="'jz'==item.key" :type="item.key" ref="chart" />
         </keep-alive>
       </el-tab-pane>
     </el-tabs>
@@ -36,7 +36,6 @@ export default {
   },
   created() {
     console.log(this.$route.name.substring(1))
-    // init the default selected tab
     const tab = this.$route.query.tab
     if (tab) {
       this.activeName = tab
