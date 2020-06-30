@@ -43,6 +43,7 @@ export default {
     getList() {
       var data = {
         projectId: this.projectId
+        // userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
     },
