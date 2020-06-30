@@ -23,7 +23,7 @@
         {{ element.taskName }}
         <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
         <span>负责人:{{element.principalName||"-"}}</span>
-        <span>协作人:-</span>
+        <span>协作人:{{updateData.assistUserList |userNames}}</span>
         <span>完成百分比:{{ element.completePercent }}%</span>
       </div>
     </draggable>
@@ -40,7 +40,7 @@
             <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
             <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
             <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
-            <el-button circle size="mini"> <i class="el-icon-close" @click="()=>centerDialogVisible=false" /></el-button>
+            <el-button circle size="mini"> <i class="el-icon-close" @click="closeMission" /></el-button>
           </div>
         </div>
         <div class="modal-content">
@@ -145,7 +145,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch } from '@/api/project'
+import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch, getAssistUserList } from '@/api/project'
 import { string } from 'clipboard'
 import { mapGetters } from 'vuex'
 import '@/utils'
@@ -153,6 +153,16 @@ export default {
   name: 'DragKanbanDemo',
   components: {
     draggable
+  },
+  filters: {
+    userNames(value) {
+      if (!value) return ''
+      const arr = []
+      value.forEach(item => {
+        arr.push(item.userName)
+      })
+      return arr.join(',')
+    }
   },
   props: {
     headerText: {
@@ -178,7 +188,7 @@ export default {
       dangers: [
         {
           color: '#DF3C2F',
-          value: '3',
+          value: ' 3',
           label: '最高'
         },
         {
@@ -286,8 +296,7 @@ export default {
     this.projectId = this.$route.name.substring(1)
   },
   computed: {
-    ...mapGetters(['userId', 'allUserList', 'name']),
-    borderColor() {}
+    ...mapGetters(['userId', 'allUserList', 'name'])
   },
   watch: {
     currentTitle: {
@@ -307,11 +316,10 @@ export default {
     dragEnd(event) {
       if (event.added) {
         this.list[event.added.newIndex].panelId = this.panelId
+
         this.updateTaskList(this.list)
       }
       if (event.moved) {
-        this.list.splice(event.moved.newIndex, 0, event.moved.element)
-        this.list.splice(event.moved.oldIndex, 1)
         this.updateTaskList(this.list)
       }
     },
@@ -320,8 +328,7 @@ export default {
     },
     getList() {
       var data = {
-        projectId: this.projectId,
-        userId: this.userId
+        projectId: this.projectId
       }
       this.$store.dispatch('project/fetchPanelList', data)
     },
@@ -364,10 +371,24 @@ export default {
       if (element.completePercent != undefined) this.updateData.completePercent = this.percent
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       if (element.principalId != undefined) this.updateData.principalId = element.principalId
+      // 获取协作人
+      this.getAssistUserLists()
       // 获取操作日志
       this.getLogList()
       // 获取评论列表
       this.getCommentsList()
+    },
+    // 关闭任务详情框
+    closeMission() {
+      this.centerDialogVisible = false
+      Object.assign(this.$data, this.$options.data())
+    },
+    // 获取协作人
+    async getAssistUserLists() {
+      // const response = await getAssistUserList(this.list[this.currentIndex].taskId)
+      // if (response.success === true) {
+      //   this.updateData.assistUserList = response.assistUserList
+      // }
     },
     // 获取操作日志
     async getLogList() {
@@ -543,9 +564,7 @@ export default {
         this.getList()
       }
     },
-    /*
-    项目开始时间与结束时间
-     */
+    // 项目开始时间与结束时间
     async setTimeRound() {
       if (this.time == null) return
       this.updateData.planStartDate = this.time[0]

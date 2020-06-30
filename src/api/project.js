@@ -3,7 +3,6 @@ import request from '@/utils/request'
 /* 获取面板表
 {
   "projectId": 0,
-  "userId": 0
 } */
 export function fetchPanelList(data) {
   return request({
@@ -129,10 +128,9 @@ export function updateBatch(data) {
 /* 
 查询协作人列表
 */
-export function getAssistUserList(data) {
+export function getAssistUserList(taskId) {
   return request({
-    url: '/task/page',
-    method: 'post',
-    data
+    url: `/task/get/${taskId}`,
+    method: 'get',
   })
 }
