@@ -125,3 +125,14 @@ export function updateBatch(data) {
     data
   })
 }
+
+/* 
+查询协作人列表
+*/
+export function getAssistUserList(data) {
+  return request({
+    url: '/task/page',
+    method: 'post',
+    data
+  })
+}

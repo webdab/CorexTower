@@ -19,10 +19,10 @@
     </div>
     <el-input v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd">
-      <div v-for="(element,index) in list" :key="element.id" class="board-item" @click="getIndex(index,element)">
+      <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="colors[element.taskLevel]" @click="getIndex(index,element)">
         {{ element.taskName }}
         <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
-        <span>负责人:-</span>
+        <span>负责人:{{element.principalName||"-"}}</span>
         <span>协作人:-</span>
         <span>完成百分比:{{ element.completePercent }}%</span>
       </div>
@@ -54,8 +54,8 @@
               <div class="nav">
                 <div>
                   <i class="el-icon-user-solid" />
-                  <el-select v-model="updateData.principalId" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo">
-                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
+                  <el-select v-model="updateData.principalName" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo">
+                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userName" />
                   </el-select>
                 </div>
                 <div style="margin-left:30px">
@@ -197,6 +197,7 @@ export default {
           label: '较低'
         }
       ],
+      colors: ['top1', 'top2', 'top3', 'top4'],
       percents: [
         {
           value: '0',
@@ -285,7 +286,8 @@ export default {
     this.projectId = this.$route.name.substring(1)
   },
   computed: {
-    ...mapGetters(['userId', 'allUserList', 'name'])
+    ...mapGetters(['userId', 'allUserList', 'name']),
+    borderColor() {}
   },
   watch: {
     currentTitle: {
@@ -335,12 +337,21 @@ export default {
       this.time.push(element.planEndDate ? String(element.planEndDate) : '')
       this.describe = element.taskInfo ? element.taskInfo : ''
       if (element.taskLevel) this.level = String(element.taskLevel)
+      if (element.principalName) this.updateData.principalName = element.principalName
+      if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
       if (element.taskStatus === '1') {
+        if (this.checked) {
+          this.checked = !this.checked
+        }
         this.missionStart = false
       } else if (element.taskStatus === '2') {
+        if (this.checked) this.checked = !this.checked
         this.missionStart = true
       } else if (element.taskStatus === '3') {
-        this.missionStart = false
+        if (!this.checked) {
+          this.checked = !this.checked
+        }
+        this.missionStart = true
       }
       this.updateData.assistUserList.userName = this.name
       this.updateData.panelId = this.panelId
@@ -350,9 +361,9 @@ export default {
       if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
       if (element.planStartDate != undefined) this.updateData.planStartDate = this.time[0]
       if (element.planEndDate != undefined) this.updateData.planEndDate = this.time[1]
-      if (element.taskLevel != undefined) this.updateData.taskLevel = this.level
       if (element.completePercent != undefined) this.updateData.completePercent = this.percent
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
+      if (element.principalId != undefined) this.updateData.principalId = element.principalId
       // 获取操作日志
       this.getLogList()
       // 获取评论列表
@@ -391,20 +402,24 @@ export default {
       if (type === 'pause') {
         this.missionStart = !this.missionStart
         this.currentStatus = '2'
+        if (this.checked) this.checked = !this.checked
         this.updateData.optUserId = this.userId
         this.updateData.taskStatus = this.currentStatus
         const response = await updateTask(this.updateData)
         if (response.success === true) {
           this.getLogList()
+          this.getList()
         }
       } else if (type === 'play') {
         this.missionStart = !this.missionStart
         this.currentStatus = '1'
+        if (this.checked) this.checked = !this.checked
         this.updateData.optUserId = this.userId
         this.updateData.taskStatus = this.currentStatus
         const response = await updateTask(this.updateData)
         if (response.success === true) {
           this.getLogList()
+          this.getList()
         }
       } else if (type === 'check') {
         if (this.checked) {
@@ -421,6 +436,7 @@ export default {
         const response = await updateTask(this.updateData)
         if (response.success === true) {
           this.getLogList()
+          this.getList()
         }
       }
     },
@@ -431,7 +447,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async() => {
+        .then(async () => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
@@ -465,7 +481,8 @@ export default {
         taskName: this.textarea,
         taskStatus: this.currentStatus,
         optUserId: this.userId,
-        optUserName: this.name
+        optUserName: this.name,
+        projectId: this.projectId
       }
       const response = await addTask(task)
       if (response.success === true) {
@@ -542,6 +559,9 @@ export default {
     async submitLevel() {
       this.updateData.taskLevel = this.level
       const response = await updateTask(this.updateData)
+      if (response.success === true) {
+        this.getList()
+      }
     },
     // 设置项目进度百分比
     async submitPercent() {
@@ -911,7 +931,6 @@ export default {
       box-sizing: border-box;
       box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
       border-radius: 4px;
-      border-left: 2px solid red;
       span {
         display: block;
         overflow: hidden;
@@ -922,6 +941,26 @@ export default {
         line-height: 16px;
         color: #999;
       }
+    }
+    .top1 {
+      border-left-width: 4px;
+      border-left-style: solid;
+      border-left-color: #58b837;
+    }
+    .top2 {
+      border-left-width: 4px;
+      border-left-style: solid;
+      border-left-color: #999999;
+    }
+    .top3 {
+      border-left-width: 4px;
+      border-left-style: solid;
+      border-left-color: #f5941d;
+    }
+    .top4 {
+      border-left-width: 4px;
+      border-left-style: solid;
+      border-left-color: #df3c2f;
     }
   }
 }
