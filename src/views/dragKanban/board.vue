@@ -1,6 +1,6 @@
 <template>
   <div class="components-container board">
-    <Kanban v-for="(item) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
+    <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
     <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
       <el-input v-model.lazy.trim="listTitle" placeholder="输入清单名称" />

@@ -89,7 +89,7 @@
               <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
               <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
             </div>
-            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:15px">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
+            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:40px;color:#777">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
           </div>
           <div class="infos">
             <div>
@@ -111,7 +111,7 @@
               </div>
               <div v-for="item in logs" :key="item.logId" class="dy-content">
                 <span class="dy-time">{{ item.optDate }}</span>
-                <span class="dy-name">{{item.userName}}</span>
+                <span class="dy-name">{{ item.userName }}</span>
                 <span class="dy-info">{{ item.optContent }}</span>
               </div>
             </div>
@@ -122,13 +122,13 @@
               </div>
               <div v-for="item in commentList" :key="item.commentId" class="com-content">
                 <span class="com-time">{{ item.createDate }}</span>
-                <span class="com-name">{{item.userName}}</span>
+                <span class="com-name">{{ item.userName }}</span>
                 <span>发表评论</span>
                 <span class="com-info">{{ item.commentInfo }}</span>
               </div>
             </div>
             <div class="edit-comment">
-              <span>{{name}}</span>
+              <span>{{ name }}</span>
               <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
               <div class="com-commit">
                 <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
@@ -172,9 +172,6 @@ export default {
       }
     },
     panelId: Number
-  },
-  created() {
-    this.projectId = this.$route.name.substring(1)
   },
   data() {
     return {
@@ -284,6 +281,9 @@ export default {
       currentStatus: '0'
     }
   },
+  created() {
+    this.projectId = this.$route.name.substring(1)
+  },
   computed: {
     ...mapGetters(['userId', 'allUserList', 'name'])
   },
@@ -336,11 +336,16 @@ export default {
       this.describe = element.taskInfo ? element.taskInfo : ''
       if (element.taskLevel) this.level = String(element.taskLevel)
       if (element.taskStatus === '1') {
-        this.missionStart = !this.missionStart
+        this.missionStart = false
+      } else if (element.taskStatus === '2') {
+        this.missionStart = true
+      } else if (element.taskStatus === '3') {
+        this.missionStart = false
       }
       this.updateData.assistUserList.userName = this.name
       this.updateData.panelId = this.panelId
       this.updateData.taskId = this.list[this.currentIndex].taskId
+      if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
       if (element.taskName != undefined) this.updateData.taskName = element.taskName
       if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
       if (element.planStartDate != undefined) this.updateData.planStartDate = this.time[0]
@@ -349,11 +354,19 @@ export default {
       if (element.completePercent != undefined) this.updateData.completePercent = this.percent
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       // 获取操作日志
+      this.getLogList()
+      // 获取评论列表
+      this.getCommentsList()
+    },
+    // 获取操作日志
+    async getLogList() {
       const logResponse = await getLog(this.list[this.currentIndex].taskId)
       if (logResponse.success === true) {
         this.logs = logResponse.data
       }
-      // 获取评论列表
+    },
+    // 获取评论列表
+    async getCommentsList() {
       const commentResponse = await getComments(this.list[this.currentIndex].taskId)
       if (commentResponse.success === true) {
         this.commentList = commentResponse.data
@@ -381,18 +394,34 @@ export default {
         this.updateData.optUserId = this.userId
         this.updateData.taskStatus = this.currentStatus
         const response = await updateTask(this.updateData)
+        if (response.success === true) {
+          this.getLogList()
+        }
       } else if (type === 'play') {
         this.missionStart = !this.missionStart
         this.currentStatus = '1'
         this.updateData.optUserId = this.userId
         this.updateData.taskStatus = this.currentStatus
         const response = await updateTask(this.updateData)
+        if (response.success === true) {
+          this.getLogList()
+        }
       } else if (type === 'check') {
-        this.checked = !this.checked
-        this.currentStatus = '3'
+        if (this.checked) {
+          this.missionStart = false
+          this.currentStatus = '1'
+          this.checked = !this.checked
+        } else {
+          this.currentStatus = '3'
+          this.missionStart = true
+          this.checked = !this.checked
+        }
         this.updateData.optUserId = this.userId
         this.updateData.taskStatus = this.currentStatus
         const response = await updateTask(this.updateData)
+        if (response.success === true) {
+          this.getLogList()
+        }
       }
     },
     // 删除该条任务
@@ -402,7 +431,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async () => {
+        .then(async() => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
@@ -479,7 +508,6 @@ export default {
       const response = await updateTask(this.updateData)
       if (response.success === true) {
         this.showDescribe = false
-        this.describe = ''
         this.getList()
       }
     },
@@ -525,19 +553,11 @@ export default {
     },
     // 发表评论
     async commitComment() {
-      var commentData = {
-        commentInfo: this.comments,
-        taskId: this.list[this.currentIndex].taskId,
-        userId: this.userId
-      }
-      console.log('commentData', commentData)
-      const response = await addComment(commentData)
+      this.updateData.commentInfo = this.comments
+      const response = await addComment(this.updateData)
       if (response.success === true) {
         this.comments = ''
-        const commentResponse = await getComments(this.list[this.currentIndex].taskId)
-        if (commentResponse.success === true) {
-          this.commentList = commentResponse.data
-        }
+        this.getCommentsList()
       }
     }
   }
@@ -821,6 +841,7 @@ export default {
           }
           .com-content {
             margin: 10px 0;
+            padding-left: 26px;
             .com-name {
               margin: 10px 10px;
             }
@@ -836,8 +857,9 @@ export default {
           padding-top: 50px;
           span {
             width: 100%;
+            height: 60px;
             font-size: 14px;
-            line-height: 28px;
+            line-height: 60px;
             text-align: center;
             vertical-align: baseline;
           }
