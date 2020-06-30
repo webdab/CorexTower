@@ -2,14 +2,14 @@
   <div class="chart-wrapper">
     <div class="filter-container">
       <!-- 搜索条 -->
-      <el-date-picker v-model="pTime" value-format="yyyy-MM-dd HH:mm:ss" type="daterange" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
+      <el-date-picker v-model="time" :clearable="false" value-format="yyyy-MM-dd" type="daterange" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
       </el-date-picker>
       <el-button v-waves class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">
         搜索
       </el-button>
     </div>
     <div>
-      <panel-group :tack-status="tackStatus" />
+      <panel-group :total-tack-status="totalTackStatus" />
     </div>
     <div class="chart-content">
       <line-chart :chart-data="lineChartData" height="400px" />
@@ -21,23 +21,21 @@
 import waves from '@/directive/waves'
 import PanelGroup from './PanelGroup'
 import lineChart from './lineChart'
+import { getTackStatus, getProjectDetails } from '@/api/project'
 export default {
   components: { PanelGroup, lineChart },
   directives: { waves },
   data() {
     return {
       projectId: '',
-      pTime: [],
-      tackStatus: {
-        wait: 11,
-        start: 20,
-        pause: 33,
-        finish: 5
+      time: [],
+      totalTackStatus: {
+        wait: 0,
+        start: 0,
+        pause: 0,
+        finish: 0
       },
-      lineChartData: {
-        expectedData: [100, 120, 161, 134, 105, 160, 165],
-        actualData: [120, 82, 91, 154, 162, 140, 145]
-      },
+      lineChartData: [],
       pickerOptions: {
         shortcuts: [
           {
@@ -74,11 +72,37 @@ export default {
   created() {
     this.projectId = this.$route.name.substring(1)
   },
+  mounted() {
+    this.getProjectDetails()
+  },
   methods: {
+    //获取任务详情
+    getProjectDetails() {
+      getProjectDetails(this.projectId).then(res => {
+        this.time = [res.data.startDate, res.data.endDate]
+        this.handleFilter()
+      })
+    },
     //获取任务状态集
-    getTackStatusList() {},
+    getTackStatus() {
+      getTackStatus({
+        projectId: this.projectId,
+        startDate: this.time[0] || '',
+        endDate: this.time[1] || ''
+      }).then(res => {
+        this.totalTackStatus = {
+          wait: res.data.totalMap[0]['未开始'] || 0,
+          start: res.data.totalMap[0]['进行中'] || 0,
+          pause: res.data.totalMap[0]['暂停中'] || 0,
+          finish: res.data.totalMap[0]['已完成'] || 0
+        }
+        this.lineChartData = res.data.dataMap
+      })
+    },
     // 搜索
-    handleFilter() {}
+    handleFilter() {
+      this.getTackStatus()
+    }
   }
 }
 </script>

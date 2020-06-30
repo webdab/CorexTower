@@ -9,7 +9,7 @@
           <div class="card-panel-text">
             未开始
           </div>
-          <count-to :start-val="0" :end-val="tackStatus.wait" :duration="1000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="totalTackStatus.wait" :duration="1000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -22,7 +22,7 @@
           <div class="card-panel-text">
             进行中
           </div>
-          <count-to :start-val="0" :end-val="tackStatus.start" :duration="1000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="totalTackStatus.start" :duration="1000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -35,7 +35,7 @@
           <div class="card-panel-text">
             暂停中
           </div>
-          <count-to :start-val="0" :end-val="tackStatus.pause" :duration="1000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="totalTackStatus.pause" :duration="1000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -48,7 +48,7 @@
           <div class="card-panel-text">
             已完成
           </div>
-          <count-to :start-val="0" :end-val="tackStatus.finish" :duration="1000" class="card-panel-num" />
+          <count-to :start-val="0" :end-val="totalTackStatus.finish" :duration="1000" class="card-panel-num" />
         </div>
       </div>
     </el-col>
@@ -63,7 +63,7 @@ export default {
     CountTo
   },
   props: {
-    tackStatus: {
+    totalTackStatus: {
       type: Object,
       required: true
     }

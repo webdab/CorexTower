@@ -20,6 +20,19 @@ export function deletePanel(id) {
     method: 'post'
   })
 }
+
+/**
+ * 项目状态统计
+ * @param {*} data
+ */
+export function getTackStatus(data) {
+  return request({
+    url: '/project/statistics',
+    method: 'post',
+    data
+  })
+}
+
 /* 新增面板
 {
   "panelTitle": "string",
@@ -134,5 +147,16 @@ export function getAssistUserList(data) {
     url: '/task/page',
     method: 'post',
     data
+  })
+}
+
+/**
+ * 根据ID获取项目详情
+ * @param {*} id
+ */
+export function getProjectDetails(id) {
+  return request({
+    url: `/project/get/${id}`,
+    method: 'get'
   })
 }

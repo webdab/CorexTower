@@ -26,7 +26,7 @@ export default {
       default: true
     },
     chartData: {
-      type: Object,
+      type: Array,
       required: true
     }
   },
@@ -39,7 +39,7 @@ export default {
     chartData: {
       deep: true,
       handler(val) {
-        this.setOptions(val)
+        this.initChart(val)
       }
     }
   },
@@ -58,15 +58,28 @@ export default {
   methods: {
     initChart() {
       this.chart = echarts.init(this.$el)
-      setTimeout(() => {
-        this.setOptions(this.chartData)
-        this.chart.resize()
-      }, 1000)
+      //加工数据
+      let xAxisData = []
+      let waitData = []
+      let startData = []
+      let pauseData = []
+      let finishData = []
+      if (this.chartData.length > 0) {
+        this.chartData.forEach(item => {
+          xAxisData.push(item['日期'])
+          waitData.push(item['未开始'])
+          startData.push(item['进行中'])
+          pauseData.push(item['暂停中'])
+          finishData.push(item['已完成'])
+        })
+      }
+      this.setOptions({ xAxisData, waitData, startData, pauseData, finishData })
+      this.chart.resize()
     },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ xAxisData, waitData, startData, pauseData, finishData } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+          data: xAxisData,
           boundaryGap: false,
           axisTick: {
             show: false
@@ -104,7 +117,7 @@ export default {
             },
             smooth: true,
             type: 'line',
-            data: expectedData,
+            data: waitData,
             animationDuration: 2800,
             animationEasing: 'cubicInOut'
           },
@@ -124,9 +137,45 @@ export default {
                 }
               }
             },
-            data: actualData,
+            data: startData,
             animationDuration: 2800,
             animationEasing: 'quadraticOut'
+          },
+          {
+            name: '暂停中',
+            smooth: true,
+            type: 'line',
+            itemStyle: {
+              normal: {
+                color: '#f4516c',
+                lineStyle: {
+                  color: '#f4516c',
+                  width: 2
+                },
+                areaStyle: {
+                  color: '#f3f8ff'
+                }
+              }
+            },
+            data: pauseData
+          },
+          {
+            name: '已完成',
+            smooth: true,
+            type: 'line',
+            itemStyle: {
+              normal: {
+                color: '#34bfa3',
+                lineStyle: {
+                  color: '#34bfa3',
+                  width: 2
+                },
+                areaStyle: {
+                  color: '#f3f8ff'
+                }
+              }
+            },
+            data: finishData
           }
         ]
       })

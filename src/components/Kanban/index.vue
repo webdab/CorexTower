@@ -178,22 +178,22 @@ export default {
       dangers: [
         {
           color: '#DF3C2F',
-          value: '3',
+          value: 3,
           label: '最高'
         },
         {
           color: '#F5941D',
-          value: '2',
+          value: 2,
           label: '较高'
         },
         {
           color: '#999999',
-          value: '1',
+          value: 1,
           label: '一般'
         },
         {
           color: '#58B837',
-          value: '0',
+          value: 0,
           label: '较低'
         }
       ],
@@ -320,8 +320,8 @@ export default {
     },
     getList() {
       var data = {
-        projectId: this.projectId,
-        userId: this.userId
+        projectId: this.projectId
+        // userId: this.userId
       }
       this.$store.dispatch('project/fetchPanelList', data)
     },
@@ -336,7 +336,13 @@ export default {
       this.time.push(element.planStartDate ? String(element.planStartDate) : '')
       this.time.push(element.planEndDate ? String(element.planEndDate) : '')
       this.describe = element.taskInfo ? element.taskInfo : ''
-      if (element.taskLevel) this.level = String(element.taskLevel)
+
+      if (element.taskLevel === 0 || !element.taskLevel) {
+        this.level = element.taskLevel === 0 ? 0 : ''
+      } else {
+        this.level = element.taskLevel
+      }
+
       if (element.principalName) this.updateData.principalName = element.principalName
       if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
       if (element.taskStatus === '1') {
