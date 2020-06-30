@@ -7,6 +7,16 @@ export function getList(data) {
     data
   })
 }
+/**
+ * 根据项目ID查询项目成员
+ * @param {*} pid 
+ */
+export function getProgectUserList(pid) {
+  return request({
+    url: '/user/listUser/'+pid,
+    method: 'post',
+  })
+}
 
 export function getAllList(data) {
   return request({

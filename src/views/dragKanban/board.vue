@@ -51,7 +51,7 @@ export default {
       this.$store.dispatch('project/fetchPanelList', data)
     },
     getUserList() {
-      this.$store.dispatch('project/fetchAllUserList', {})
+      this.$store.dispatch('project/getProgectUserList', this.projectId)
     },
     // 添加清单
     addList() {

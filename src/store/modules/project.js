@@ -1,5 +1,5 @@
 import { fetchPanelList } from '@/api/project'
-import { getAllList as fetchAllUserList } from '@/api/setting-user'
+import { getProgectUserList } from '@/api/setting-user'
 
 const state = {
   panelList: [],
@@ -21,8 +21,8 @@ const actions = {
       }
     })
   },
-  fetchAllUserList({ commit }, data) {
-    fetchAllUserList(data).then(response => {
+  getProgectUserList({ commit }, data) {
+    getProgectUserList(data).then(response => {
       commit('SET_USER_LIST', response.data)
     })
   }
