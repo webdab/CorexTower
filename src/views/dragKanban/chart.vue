@@ -18,6 +18,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import waves from '@/directive/waves'
 import PanelGroup from './PanelGroup'
 import lineChart from './lineChart'
@@ -78,8 +79,10 @@ export default {
   methods: {
     //获取任务详情
     getProjectDetails() {
+      let today = moment().format('YYYY-MM-DD');
+      console.log(today)
       getProjectDetails(this.projectId).then(res => {
-        this.time = [res.data.startDate, res.data.endDate]
+        this.time = [res.data.startDate, today]
         this.handleFilter()
       })
     },
