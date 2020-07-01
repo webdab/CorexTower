@@ -8,7 +8,6 @@
       <el-button class="cancleSub" @click="()=>showEdTitle=false">取消</el-button>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -32,6 +31,7 @@ export default {
     ...mapGetters(['userId', 'isLoading', 'panelList'])
   },
   created() {
+    this.$store.commit('project/SET_PANEL_LIST', [])
     this.projectId = this.$route.name.substring(1)
   },
   mounted() {
@@ -41,7 +41,9 @@ export default {
   },
   methods: {
     getList() {
-      this.$store.dispatch('project/fetchPanelList', this.projectId)
+      this.$store.dispatch('project/fetchPanelList', {
+        projectId: this.projectId
+      })
     },
     getUserList() {
       this.$store.dispatch('project/getProgectUserList', this.projectId)

@@ -1,13 +1,14 @@
 import request from '@/utils/request'
 
-/* 获取面板表
-{
-  "projectId": 0,
-} */
-export function fetchPanelList(projectId) {
+/**
+ * 获取面板信息
+ * @param {*} data
+ */
+export function fetchPanelList(data) {
   return request({
-    url: `/panel/list/${projectId}`,
-    method: 'get'
+    url: '/panel/list',
+    method: 'post',
+    data
   })
 }
 

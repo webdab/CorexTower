@@ -1,5 +1,6 @@
 import { fetchPanelList } from '@/api/project'
 import { getProgectUserList } from '@/api/setting-user'
+import { localeData } from 'moment'
 
 const state = {
   panelList: [],
@@ -18,9 +19,9 @@ const mutations = {
   }
 }
 const actions = {
-  fetchPanelList({ commit }, projectId) {
-    console.log('project',projectId)
-    fetchPanelList(projectId).then(response => {
+  fetchPanelList({ commit }, data) {
+    console.log('project',localeData)
+    fetchPanelList(data).then(response => {
       if (response.success === true) {
         commit('SET_LOADING_STATUS', false)
         commit('SET_PANEL_LIST', response.data)
