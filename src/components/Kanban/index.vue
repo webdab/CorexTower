@@ -3,7 +3,7 @@
     <div v-if="!showEdTitle" class="board-column-header">
       <span class="num">{{ list.length }}</span>
       <span class="headerText">{{ headerText }}</span>
-      <i class="el-icon-plus" ref='addTask' @click="addTaskView" />
+      <i class="el-icon-plus" @click="addTaskView" />
       <el-dropdown>
         <i class="el-icon-more" />
         <el-dropdown-menu slot="dropdown">
@@ -18,7 +18,7 @@
       <el-button class="cancleSub" @click="subCancle">取消</el-button>
     </div>
     <el-input v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
-    <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd">
+    <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="colors[element.taskLevel]" @click="getIndex(index,element)">
         <p>{{ element.taskName }}</p>
         <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
@@ -54,13 +54,13 @@
               <div class="nav">
                 <div>
                   <i class="el-icon-user-solid" />
-                  <el-select v-model="updateData.principalName" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo">
-                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userName" />
+                  <el-select v-model="updateData.principalName" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo('leader')">
+                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
                   </el-select>
                 </div>
                 <div style="margin-left:30px">
                   <svg-icon icon-class="peoples" />
-                  <el-select v-model="updateData.assistUserList" value-key="userId" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable @change="changeTaskInfo">
+                  <el-select v-model="updateData.assistUserList" value-key="userId" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable @change="changeTaskInfo('assistUser')">
                     <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item" />
                   </el-select>
                 </div>
@@ -109,12 +109,10 @@
                 <i class="el-icon-edit" />
                 <span class="group-title">操作日志</span>
               </div>
-              <div class="dynamic-list">
-                <div v-for="item in logs" :key="item.logId" class="dy-content">
-                  <span class="dy-time">{{ item.optDate }}</span>
-                  <span class="dy-name">{{ item.userName }}</span>
-                  <span class="dy-info">{{ item.optContent }}</span>
-                </div>
+              <div v-for="item in logs" :key="item.logId" class="dy-content">
+                <span class="dy-time">{{ item.optDate }}</span>
+                <span class="dy-name">{{ item.userName }}</span>
+                <span class="dy-info">{{ item.optContent }}</span>
               </div>
             </div>
             <div class="comment-info">
@@ -122,13 +120,11 @@
                 <i class="el-icon-chat-line-round" />
                 <span class="group-title">评论区</span>
               </div>
-              <div class="comment-info-list">
-                <div v-for="item in commentList" :key="item.commentId" class="com-content">
-                  <span class="com-time">{{ item.createDate }}</span>
-                  <span class="com-name">{{ item.userName }}</span>
-                  <span>发表评论</span>
-                  <span class="com-info">{{ item.commentInfo }}</span>
-                </div>
+              <div v-for="item in commentList" :key="item.commentId" class="com-content">
+                <span class="com-time">{{ item.createDate }}</span>
+                <span class="com-name">{{ item.userName }}</span>
+                <span>发表评论</span>
+                <span class="com-info">{{ item.commentInfo }}</span>
               </div>
             </div>
             <div class="edit-comment">
@@ -253,7 +249,6 @@ export default {
       currentIndex: '',
       logs: [],
       commentList: [],
-      projectId: '',
       updateData: {
         assistUserList: [
           // {
@@ -297,7 +292,7 @@ export default {
     }
   },
   created() {
-    this.projectId = this.$route.name.substring(1)
+    this.$projectId = this.$route.name.substring(1)
   },
   computed: {
     ...mapGetters(['userId', 'allUserList', 'name'])
@@ -318,7 +313,7 @@ export default {
     },
     addTaskView() {
       this.ContainerTimer = setTimeout(() => {
-        this.$refs.addTask.scrollTop = 0
+        // this.$refs.addTask.scrollTop = 0
         this.showInput = true
         // 清理定时器
         clearTimeout(this.ContainerTimer)
@@ -339,7 +334,7 @@ export default {
       const response = updateBatch(list)
     },
     getList() {
-      this.$store.dispatch('project/fetchPanelList', this.projectId)
+      this.$store.dispatch('project/fetchPanelList', this.$projectId)
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
@@ -395,7 +390,7 @@ export default {
     // 关闭任务详情框
     closeMission() {
       this.centerDialogVisible = false
-      // Object.assign(this.$data, this.$options.data())
+      Object.assign(this.$data, this.$options.data())
     },
     // 获取操作日志
     async getLogList() {
@@ -431,9 +426,14 @@ export default {
         this.missionStart = !this.missionStart
         this.currentStatus = '2'
         if (this.checked) this.checked = !this.checked
-        this.updateData.optUserId = this.userId
-        this.updateData.taskStatus = this.currentStatus
-        const response = await updateTask(this.updateData)
+        const response = await updateTask({
+          panelId: this.panelId,
+          taskId: this.list[this.currentIndex].taskId,
+          userId: this.userId,
+          optUserId: this.userId,
+          userName: this.name,
+          taskStatus: this.currentStatus
+        })
         if (response.success === true) {
           this.getLogList()
           this.getList()
@@ -442,9 +442,14 @@ export default {
         this.missionStart = !this.missionStart
         this.currentStatus = '1'
         if (this.checked) this.checked = !this.checked
-        this.updateData.optUserId = this.userId
-        this.updateData.taskStatus = this.currentStatus
-        const response = await updateTask(this.updateData)
+        const response = await updateTask({
+          panelId: this.panelId,
+          taskId: this.list[this.currentIndex].taskId,
+          userId: this.userId,
+          optUserId: this.userId,
+          userName: this.name,
+          taskStatus: this.currentStatus
+        })
         if (response.success === true) {
           this.getLogList()
           this.getList()
@@ -459,9 +464,14 @@ export default {
           this.missionStart = true
           this.checked = !this.checked
         }
-        this.updateData.optUserId = this.userId
-        this.updateData.taskStatus = this.currentStatus
-        const response = await updateTask(this.updateData)
+        const response = await updateTask({
+          panelId: this.panelId,
+          taskId: this.list[this.currentIndex].taskId,
+          userId: this.userId,
+          optUserId: this.userId,
+          userName: this.name,
+          taskStatus: this.currentStatus
+        })
         if (response.success === true) {
           this.getLogList()
           this.getList()
@@ -508,10 +518,7 @@ export default {
         panelId: this.panelId,
         taskName: this.textarea,
         taskStatus: this.currentStatus,
-        optUserId: this.userId,
-        optUserName: this.name,
-        projectId: this.projectId,
-        taskSort: this.list.length + 1
+        projectId:  this.$projectId
       }
       const response = await addTask(task)
       if (response.success === true) {
@@ -529,7 +536,7 @@ export default {
         var data = {
           panelTitle: this.input,
           panelId: this.panelId,
-          projectId: this.projectId,
+          projectId:  this.$projectId,
           userId: this.userId
         }
         var response = await updatePanel(data)
@@ -550,8 +557,12 @@ export default {
     },
     // 保存项目描述
     async saveDescribe() {
-      this.updateData.taskInfo = this.describe
-      const response = await updateTask(this.updateData)
+      const response = await updateTask({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: this.userId,
+        taskInfo: this.describe
+      })
       if (response.success === true) {
         this.showDescribe = false
         this.getList()
@@ -559,15 +570,41 @@ export default {
     },
     // 设置任务标题
     async submitMissionTitle() {
-      this.updateData.taskName = this.missionTitle
-      const response = await updateTask(this.updateData)
+      const response = await updateTask({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: this.userId,
+        taskName: this.missionTitle
+      })
       if (response.success === true) {
         this.getList()
       }
     },
     // 修改任务详情
-    async changeTaskInfo() {
-      const response = await updateTask(this.updateData)
+    async changeTaskInfo(type) {
+      var data = {}
+      if (type === 'leader') {
+        var principalName = this.allUserList.find(item => {
+          return item.userId === this.updateData.principalName
+        })
+        data = {
+          panelId: this.panelId,
+          taskId: this.list[this.currentIndex].taskId,
+          userId: this.userId,
+          principalId: this.updateData.principalName,
+          principalName: principalName.userName
+        }
+      }
+      if (type === 'assistUser') {
+        data = {
+          panelId: this.panelId,
+          taskId: this.list[this.currentIndex].taskId,
+          userId: this.userId,
+          assistUserList: this.updateData.assistUserList,
+          projectId:  this.$projectId
+        }
+      }
+      const response = await updateTask(data)
       if (response.success === true) {
         this.getList()
       }
@@ -575,33 +612,50 @@ export default {
     // 项目开始时间与结束时间
     async setTimeRound() {
       if (this.time == null) return
-      this.updateData.planStartDate = this.time[0]
-      this.updateData.planEndDate = this.time[1]
-      const response = await updateTask(this.updateData)
+      const response = await updateTask({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        planStartDate: this.time[0],
+        planEndDate: this.time[1],
+        userId: this.userId
+      })
       if (response.success === true) {
         this.getList()
       }
     },
     // 修改任务等级
     async submitLevel() {
-      this.updateData.taskLevel = this.level
-      const response = await updateTask(this.updateData)
+      const response = await updateTask({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: this.userId,
+        taskLevel: this.level
+      })
       if (response.success === true) {
         this.getList()
       }
     },
     // 设置项目进度百分比
     async submitPercent() {
-      this.updateData.completePercent = this.percent
-      const response = await updateTask(this.updateData)
+      const response = await updateTask({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: this.userId,
+        completePercent: this.percent
+      })
       if (response.success === true) {
         this.getList()
       }
     },
     // 发表评论
     async commitComment() {
-      this.updateData.commentInfo = this.comments
-      const response = await addComment(this.updateData)
+      const response = await addComment({
+        panelId: this.panelId,
+        taskId: this.list[this.currentIndex].taskId,
+        userId: this.userId,
+        userName: this.name,
+        commentInfo: this.comments
+      })
       if (response.success === true) {
         this.comments = ''
         this.getCommentsList()
@@ -688,10 +742,12 @@ export default {
   }
   .dialog-page {
     width: 1110px;
-    height: 84%;
+    height: 80%;
     position: fixed;
+    // margin-left: 100px;
     top: 50%;
     left: 50%;
+    margin-top: 20px;
     transform: translate(-50%, -50%);
     z-index: 200;
     border-radius: 5px;
@@ -858,12 +914,6 @@ export default {
           color: #777;
           word-break: break-word;
           padding-bottom: 20px;
-          .dynamic-list {
-            margin-top: 10px;
-            min-height: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-          }
           .dy-content {
             margin: 10px 0px;
             padding-left: 26px;
@@ -885,12 +935,6 @@ export default {
           font-size: 12px;
           color: #777;
           padding-top: 10px;
-          .comment-info-list {
-            margin-top: 10px;
-            min-height: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-          }
           .com-title {
             font-size: 14px;
             padding-bottom: 10px;
@@ -911,7 +955,7 @@ export default {
           }
         }
         .edit-comment {
-          padding-top: 20px;
+          padding-top: 50px;
           span {
             width: 100%;
             height: 60px;
