@@ -518,7 +518,8 @@ export default {
         panelId: this.panelId,
         taskName: this.textarea,
         taskStatus: this.currentStatus,
-        projectId:  this.$projectId
+        userId: this.userId,
+        projectId: this.$projectId
       }
       const response = await addTask(task)
       if (response.success === true) {
@@ -536,7 +537,7 @@ export default {
         var data = {
           panelTitle: this.input,
           panelId: this.panelId,
-          projectId:  this.$projectId,
+          projectId: this.$projectId,
           userId: this.userId
         }
         var response = await updatePanel(data)
@@ -601,7 +602,7 @@ export default {
           taskId: this.list[this.currentIndex].taskId,
           userId: this.userId,
           assistUserList: this.updateData.assistUserList,
-          projectId:  this.$projectId
+          projectId: this.$projectId
         }
       }
       const response = await updateTask(data)
