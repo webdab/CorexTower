@@ -1,15 +1,11 @@
 <template>
   <div class="tab-wrapper">
-    <el-tabs v-model="activeName" style="margin:10px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card" @tab-click="handleTabClick">
+    <el-tabs v-model="activeName" style="margin:10px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card">
       <el-tab-pane label="看板" name="kb">
-
         <board v-if="'kb' == activeName" />
-
       </el-tab-pane>
       <el-tab-pane label="进展" name="jz">
-
         <chart v-if="'jz' == activeName" />
-
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -35,18 +31,14 @@ export default {
     }
   },
   created() {
-    console.log(this.$route.name.substring(1))
+    console.log('projectID', this.$route.name.substring(1))
     const tab = this.$route.query.tab
     if (tab) {
       this.activeName = tab
     }
   },
   mounted() {},
-  methods: {
-    handleTabClick() {
-      console.log(this.activeName)
-    }
-  }
+  methods: {}
 }
 </script>
 <style lang="scss">

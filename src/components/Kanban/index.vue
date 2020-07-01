@@ -109,10 +109,12 @@
                 <i class="el-icon-edit" />
                 <span class="group-title">操作日志</span>
               </div>
-              <div v-for="item in logs" :key="item.logId" class="dy-content">
-                <span class="dy-time">{{ item.optDate }}</span>
-                <span class="dy-name">{{ item.userName }}</span>
-                <span class="dy-info">{{ item.optContent }}</span>
+              <div class="dynamic-list">
+                <div v-for="item in logs" :key="item.logId" class="dy-content">
+                  <span class="dy-time">{{ item.optDate }}</span>
+                  <span class="dy-name">{{ item.userName }}</span>
+                  <span class="dy-info">{{ item.optContent }}</span>
+                </div>
               </div>
             </div>
             <div class="comment-info">
@@ -120,11 +122,13 @@
                 <i class="el-icon-chat-line-round" />
                 <span class="group-title">评论区</span>
               </div>
-              <div v-for="item in commentList" :key="item.commentId" class="com-content">
-                <span class="com-time">{{ item.createDate }}</span>
-                <span class="com-name">{{ item.userName }}</span>
-                <span>发表评论</span>
-                <span class="com-info">{{ item.commentInfo }}</span>
+              <div class="comment-info-list">
+                <div v-for="item in commentList" :key="item.commentId" class="com-content">
+                  <span class="com-time">{{ item.createDate }}</span>
+                  <span class="com-name">{{ item.userName }}</span>
+                  <span>发表评论</span>
+                  <span class="com-info">{{ item.commentInfo }}</span>
+                </div>
               </div>
             </div>
             <div class="edit-comment">
@@ -510,7 +514,8 @@ export default {
         taskStatus: this.currentStatus,
         optUserId: this.userId,
         optUserName: this.name,
-        projectId: this.projectId
+        projectId: this.projectId,
+        taskSort: this.list.length + 1
       }
       const response = await addTask(task)
       if (response.success === true) {
@@ -688,12 +693,10 @@ export default {
   }
   .dialog-page {
     width: 1110px;
-    height: 80%;
+    height: 84%;
     position: fixed;
-    // margin-left: 100px;
     top: 50%;
     left: 50%;
-    margin-top: 20px;
     transform: translate(-50%, -50%);
     z-index: 200;
     border-radius: 5px;
@@ -859,6 +862,12 @@ export default {
           color: #777;
           word-break: break-word;
           padding-bottom: 20px;
+          .dynamic-list {
+            margin-top: 10px;
+            min-height: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+          }
           .dy-content {
             margin: 10px 0px;
             padding-left: 26px;
@@ -880,6 +889,12 @@ export default {
           font-size: 12px;
           color: #777;
           padding-top: 10px;
+          .comment-info-list {
+            margin-top: 10px;
+            min-height: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+          }
           .com-title {
             font-size: 14px;
             padding-bottom: 10px;
@@ -900,7 +915,7 @@ export default {
           }
         }
         .edit-comment {
-          padding-top: 50px;
+          padding-top: 20px;
           span {
             width: 100%;
             height: 60px;
