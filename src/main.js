@@ -28,6 +28,7 @@ Object.keys(filters).forEach(key => {
 })
 
 Vue.config.productionTip = false
+Vue.prototype.$projectId = ''
 
 new Vue({
   el: '#app',
