@@ -12,14 +12,14 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <div v-if="showEdTitle">
+    <div class="creat-task" v-if="showEdTitle">
       <el-input v-model="input" :placeholder="`${headerText}`" />
       <el-button type="primary" class="submit" @click="subTitle">提交</el-button>
       <el-button class="cancleSub" @click="subCancle">取消</el-button>
     </div>
-    <el-input v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
+    <el-input ref="addTackTextarea" v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
-      <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="colors[element.taskLevel]" @click="getIndex(index,element)">
+      <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
         <p>{{ element.taskName }}</p>
         <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
         <span class="card-other">负责人:&nbsp;{{element.principalName||"-"}}</span>
@@ -313,8 +313,12 @@ export default {
     },
     addTaskView() {
       this.ContainerTimer = setTimeout(() => {
-        // this.$refs.addTask.scrollTop = 0
         this.showInput = true
+        setTimeout(() => {
+          // this.$refs.addTask.scrollTop = 0
+          console.log(this.$refs.addTask)
+          this.$refs.addTackTextarea.focus()
+        }, 100)
         // 清理定时器
         clearTimeout(this.ContainerTimer)
       }, 0)
@@ -518,7 +522,7 @@ export default {
         panelId: this.panelId,
         taskName: this.textarea,
         taskStatus: this.currentStatus,
-        projectId:  this.$projectId
+        projectId: this.$projectId
       }
       const response = await addTask(task)
       if (response.success === true) {
@@ -536,7 +540,7 @@ export default {
         var data = {
           panelTitle: this.input,
           panelId: this.panelId,
-          projectId:  this.$projectId,
+          projectId: this.$projectId,
           userId: this.userId
         }
         var response = await updatePanel(data)
@@ -601,7 +605,7 @@ export default {
           taskId: this.list[this.currentIndex].taskId,
           userId: this.userId,
           assistUserList: this.updateData.assistUserList,
-          projectId:  this.$projectId
+          projectId: this.$projectId
         }
       }
       const response = await updateTask(data)
@@ -701,15 +705,19 @@ export default {
       margin-left: 20px;
     }
     .el-icon-plus {
+      cursor: pointer;
       display: inline-block;
       height: 50px;
       line-height: 50px;
-      font-size: 14px;
+      font-size: 16px;
       position: absolute;
       right: 0;
       margin-right: 30px;
       color: #000;
       vertical-align: middle;
+      &:hover {
+        color: #1890ff;
+      }
     }
     .el-dropdown {
       height: 50px;
@@ -718,21 +726,31 @@ export default {
       right: 0;
       margin-right: 10px;
       .el-icon-more {
+        cursor: pointer;
         display: inline-block;
         height: 50px;
         line-height: 50px;
-        font-size: 14px;
+        font-size: 16px;
         position: absolute;
         right: 0;
         vertical-align: middle;
+        &:hover {
+          color: #1890ff;
+        }
       }
+    }
+  }
+  .creat-task {
+    padding-bottom: 10px;
+    .el-input {
+      width: 100%;
+      padding: 5px 10px;
+      margin: 15px 0 5px 0;
     }
   }
   .el-input {
     width: 100%;
-    height: 64px;
     padding: 5px 10px;
-    margin: 15px 0px;
   }
   .submit {
     margin: 0 10px;
@@ -1046,6 +1064,9 @@ export default {
         font-size: 12px;
         line-height: 18px;
       }
+    }
+    .finish {
+      background-color: #eee;
     }
     .top1 {
       border-left-width: 4px;
