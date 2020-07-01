@@ -85,7 +85,7 @@
           <div class="describe">
             <div class="edit">
               <i class="el-icon-document" />
-              <span style="margin-left:16px">添加任务描述</span>
+              <span class="group-title">任务描述</span>
               <a @click="()=>showDescribe=true">编辑</a>
             </div>
             <div v-show="showDescribe" class="edit-textarea">
@@ -302,6 +302,7 @@ export default {
     }
   },
   created() {
+    //切换项目清空面板数据
     this.$projectId = this.$route.name.substring(1)
   },
   computed: {
@@ -348,7 +349,9 @@ export default {
       const response = updateBatch(list)
     },
     getList() {
-      this.$store.dispatch('project/fetchPanelList', this.$projectId)
+      this.$store.dispatch('project/fetchPanelList', {
+        projectId: this.$projectId
+      })
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
