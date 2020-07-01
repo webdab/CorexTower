@@ -3,7 +3,7 @@
     <div v-if="!showEdTitle" class="board-column-header">
       <span class="num">{{ list.length }}</span>
       <span class="headerText">{{ headerText }}</span>
-      <i class="el-icon-plus" @click="()=>showInput = true" />
+      <i class="el-icon-plus" ref='addTask' @click="addTaskView" />
       <el-dropdown>
         <i class="el-icon-more" />
         <el-dropdown-menu slot="dropdown">
@@ -23,8 +23,8 @@
         {{ element.taskName }}
         <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
         <span>负责人:{{element.principalName||"-"}}</span>
-        <span>协作人:{{updateData.assistUserList |userNames}}</span>
-        <span>完成百分比:{{ element.completePercent }}%</span>
+        <span>协作人:{{element.assistUserList|userNames}}</span>
+        <span>完成百分比:{{ element.completePercent}}%</span>
       </div>
     </draggable>
     <!-- modal -->
@@ -316,6 +316,14 @@ export default {
       // Detail see : https://github.com/RubaXa/Sortable/issues/1012
       dataTransfer.setData('Text', '')
     },
+    addTaskView() {
+      this.ContainerTimer = setTimeout(() => {
+        this.$refs.addTask.scrollTop = 0
+        this.showInput = true
+        // 清理定时器
+        clearTimeout(this.ContainerTimer)
+      }, 0)
+    },
     // 任务拖动结束，更新面板
     dragEnd(event) {
       if (event.added) {
@@ -331,11 +339,7 @@ export default {
       const response = updateBatch(list)
     },
     getList() {
-      var data = {
-        projectId: this.projectId
-        // userId: this.userId
-      }
-      this.$store.dispatch('project/fetchPanelList', data)
+      this.$store.dispatch('project/fetchPanelList', this.projectId)
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
@@ -382,8 +386,7 @@ export default {
       if (element.completePercent != undefined) this.updateData.completePercent = this.percent
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       if (element.principalId != undefined) this.updateData.principalId = element.principalId
-      // 获取协作人
-      this.getAssistUserLists()
+      if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
       // 获取操作日志
       this.getLogList()
       // 获取评论列表
@@ -392,14 +395,7 @@ export default {
     // 关闭任务详情框
     closeMission() {
       this.centerDialogVisible = false
-      Object.assign(this.$data, this.$options.data())
-    },
-    // 获取协作人
-    async getAssistUserLists() {
-      // const response = await getAssistUserList(this.list[this.currentIndex].taskId)
-      // if (response.success === true) {
-      //   this.updateData.assistUserList = response.assistUserList
-      // }
+      // Object.assign(this.$data, this.$options.data())
     },
     // 获取操作日志
     async getLogList() {
@@ -623,7 +619,7 @@ export default {
   background: #f0f0f0;
   border-radius: 3px;
   margin: 0 5px;
-  overflow-y: auto;
+
   .board-column-header {
     height: 50px;
     line-height: 50px;
@@ -679,11 +675,10 @@ export default {
     }
   }
   .el-input {
-    box-sizing: border-box;
     width: 100%;
     height: 64px;
     padding: 5px 10px;
-    margin: 5px 0;
+    margin: 15px 0px;
   }
   .submit {
     margin: 0 10px;
@@ -769,6 +764,7 @@ export default {
         .main-content {
           width: 100%;
           input {
+            width: 100%;
             padding: 3px 0;
             font-size: 20px;
             font-weight: 700;

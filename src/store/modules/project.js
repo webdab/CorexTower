@@ -18,8 +18,9 @@ const mutations = {
   }
 }
 const actions = {
-  fetchPanelList({ commit }, data) {
-    fetchPanelList(data).then(response => {
+  fetchPanelList({ commit }, projectId) {
+    console.log('project',projectId)
+    fetchPanelList(projectId).then(response => {
       if (response.success === true) {
         commit('SET_LOADING_STATUS', false)
         commit('SET_PANEL_LIST', response.data)
