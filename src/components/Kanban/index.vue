@@ -3,7 +3,7 @@
     <div v-if="!showEdTitle" class="board-column-header">
       <span class="num">{{ list.length }}</span>
       <span class="headerText">{{ headerText }}</span>
-      <i class="el-icon-plus" @click="()=>showInput = true" />
+      <i class="el-icon-plus" ref='addTask' @click="addTaskView" />
       <el-dropdown>
         <i class="el-icon-more" />
         <el-dropdown-menu slot="dropdown">
@@ -312,6 +312,14 @@ export default {
       // Detail see : https://github.com/RubaXa/Sortable/issues/1012
       dataTransfer.setData('Text', '')
     },
+    addTaskView() {
+      this.ContainerTimer = setTimeout(() => {
+        this.$refs.addTask.scrollTop = 0
+        this.showInput = true
+        // 清理定时器
+        clearTimeout(this.ContainerTimer)
+      }, 0)
+    },
     // 任务拖动结束，更新面板
     dragEnd(event) {
       if (event.added) {
@@ -327,11 +335,7 @@ export default {
       const response = updateBatch(list)
     },
     getList() {
-      var data = {
-        projectId: this.projectId
-        // userId: this.userId
-      }
-      this.$store.dispatch('project/fetchPanelList', data)
+      this.$store.dispatch('project/fetchPanelList', this.projectId)
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
@@ -387,7 +391,7 @@ export default {
     // 关闭任务详情框
     closeMission() {
       this.centerDialogVisible = false
-      Object.assign(this.$data, this.$options.data())
+      // Object.assign(this.$data, this.$options.data())
     },
     // 获取操作日志
     async getLogList() {
@@ -610,7 +614,7 @@ export default {
   background: #f0f0f0;
   border-radius: 3px;
   margin: 0 5px;
-  overflow-y: auto;
+
   .board-column-header {
     height: 50px;
     line-height: 50px;
@@ -666,11 +670,10 @@ export default {
     }
   }
   .el-input {
-    box-sizing: border-box;
     width: 100%;
     height: 64px;
     padding: 5px 10px;
-    margin: 5px 0;
+    margin: 15px 0px;
   }
   .submit {
     margin: 0 10px;
@@ -758,6 +761,7 @@ export default {
         .main-content {
           width: 100%;
           input {
+            width: 100%;
             padding: 3px 0;
             font-size: 20px;
             font-weight: 700;

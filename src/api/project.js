@@ -4,11 +4,10 @@ import request from '@/utils/request'
 {
   "projectId": 0,
 } */
-export function fetchPanelList(data) {
+export function fetchPanelList(projectId) {
   return request({
-    url: '/panel/list',
-    method: 'post',
-    data
+    url: `/panel/list/${projectId}`,
+    method: 'get'
   })
 }
 
@@ -144,7 +143,7 @@ export function updateBatch(data) {
 export function getAssistUserList(taskId) {
   return request({
     url: `/task/get/${taskId}`,
-    method: 'get',
+    method: 'get'
   })
 }
 
