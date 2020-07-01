@@ -522,10 +522,7 @@ export default {
         panelId: this.panelId,
         taskName: this.textarea,
         taskStatus: this.currentStatus,
-<<<<<<< HEAD
-=======
         userId: this.userId,
->>>>>>> 37d382e2723c34518dd7a62524fa5be34dc74b33
         projectId: this.$projectId
       }
       const response = await addTask(task)
