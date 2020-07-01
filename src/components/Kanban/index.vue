@@ -22,10 +22,10 @@
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
         <span>{{ element.taskName }}</span>
         <div class="task-header">
-          <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
-          <i :class="statusClass[element.taskStatus]" />
+          <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+          <i :class="statusClass[element.taskStatus].name" :style="{color:[statusClass[element.taskStatus].color]}" />
         </div>
-        <span class="card-other">负责人:&nbsp;{{element.principalName||"-"}}</span>
+        <span class="card-other">负责人:&nbsp;{{element.principalName}}</span>
         <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
         <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
       </div>
@@ -216,7 +216,12 @@ export default {
         }
       ],
       colors: ['top1', 'top2', 'top3', 'top4'],
-      statusClass: ['el-icon-loading', 'el-icon-video-play', 'el-icon-video-pause', 'el-icon-success'],
+      statusClass: [
+        { name: 'el-icon-loading', color: '#fc6b04' },
+        { name: 'el-icon-video-play', color: '#36a3f7' },
+        { name: 'el-icon-video-pause', color: '#f4516c' },
+        { name: 'el-icon-success', color: '#34bfa3' }
+      ],
       percents: [
         {
           value: '0',
@@ -445,6 +450,7 @@ export default {
       if (type === 'pause') {
         this.missionStart = !this.missionStart
         this.currentStatus = '2'
+        this.statusText = '暂停中'
         if (this.checked) this.checked = !this.checked
         const response = await updateTask({
           panelId: this.panelId,
@@ -461,6 +467,7 @@ export default {
       } else if (type === 'play') {
         this.missionStart = !this.missionStart
         this.currentStatus = '1'
+        this.statusText = '进行中'
         if (this.checked) this.checked = !this.checked
         const response = await updateTask({
           panelId: this.panelId,
@@ -479,8 +486,10 @@ export default {
           this.missionStart = false
           this.currentStatus = '1'
           this.checked = !this.checked
+          this.statusText = '进行中'
         } else {
           this.currentStatus = '3'
+          this.statusText = '已完成'
           this.missionStart = true
           this.checked = !this.checked
         }
@@ -687,7 +696,7 @@ export default {
 </script>
 <style lang="scss" scoped>
 .board-column {
-  min-width: 324px;
+  width: 324px;
   min-height: 100px;
   box-sizing: border-box;
   height: 100%;
