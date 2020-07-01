@@ -1,11 +1,15 @@
 <template>
   <div class="tab-wrapper">
-    <el-tabs v-model="activeName" style="margin:10px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card">
-      <el-tab-pane v-for="item in tabMapOptions" :key="item.key" :label="item.label" :name="item.key">
-        <keep-alive>
-          <board v-if="'kb'==item.key" :type="item.key" ref="board" />
-          <chart v-if="'jz'==item.key" :type="item.key" ref="chart" />
-        </keep-alive>
+    <el-tabs v-model="activeName" style="margin:10px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card" @tab-click="handleTabClick">
+      <el-tab-pane label="看板" name="kb">
+
+        <board v-if="'kb' == activeName" />
+
+      </el-tab-pane>
+      <el-tab-pane label="进展" name="jz">
+
+        <chart v-if="'jz' == activeName" />
+
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -22,11 +26,7 @@ export default {
   },
   data() {
     return {
-      activeName: 'kb',
-      tabMapOptions: [
-        { label: '看板', key: 'kb' },
-        { label: '进展', key: 'jz' }
-      ]
+      activeName: 'kb'
     }
   },
   watch: {
@@ -42,7 +42,11 @@ export default {
     }
   },
   mounted() {},
-  methods: {}
+  methods: {
+    handleTabClick() {
+      console.log(this.activeName)
+    }
+  }
 }
 </script>
 <style lang="scss">
