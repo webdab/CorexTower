@@ -20,11 +20,11 @@
     <el-input v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="colors[element.taskLevel]" @click="getIndex(index,element)">
-        {{ element.taskName }}
-        <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
-        <span>负责人:{{element.principalName||"-"}}</span>
-        <span>协作人:{{element.assistUserList|userNames}}</span>
-        <span>完成百分比:{{ element.completePercent}}%</span>
+        <p>{{ element.taskName }}</p>
+        <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
+        <span class="card-other">负责人:&nbsp;{{element.principalName||"-"}}</span>
+        <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
+        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
       </div>
     </draggable>
     <!-- modal -->
@@ -1013,7 +1013,20 @@ export default {
       box-sizing: border-box;
       box-shadow: 0px 1px 3px 0 rgba(0, 0, 0, 0.2);
       border-radius: 4px;
-      span {
+      border-top: 1px solid #e3e3e3;
+      border-right: 1px solid #e3e3e3;
+      border-bottom: 1px solid #e3e3e3;
+      &:hover {
+        border-top: 1px solid #ccc;
+        border-right: 1px solid #ccc;
+        border-bottom: 1px solid #ccc;
+      }
+      p {
+        margin: 0;
+        padding: 0;
+        color: #3d3d3d;
+      }
+      .card-other {
         display: block;
         overflow: hidden;
         white-space: nowrap;
@@ -1022,6 +1035,17 @@ export default {
         font-size: 12px;
         line-height: 16px;
         color: #999;
+      }
+      .card-time {
+        margin-top: 0;
+        display: inline-block;
+        background-color: #f9d8d5;
+        border: 1px solid #ee7a71;
+        border-radius: 10px;
+        color: #df3c2f;
+        padding: 2px 8px;
+        font-size: 12px;
+        line-height: 18px;
       }
     }
     .top1 {
