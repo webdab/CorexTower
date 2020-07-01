@@ -23,8 +23,8 @@
         {{ element.taskName }}
         <span>截止时间:{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
         <span>负责人:{{element.principalName||"-"}}</span>
-        <span>协作人:{{updateData.assistUserList |userNames}}</span>
-        <span>完成百分比:{{ element.completePercent }}%</span>
+        <span>协作人:{{element.assistUserList|userNames}}</span>
+        <span>完成百分比:{{ element.completePercent}}%</span>
       </div>
     </draggable>
     <!-- modal -->
@@ -378,8 +378,7 @@ export default {
       if (element.completePercent != undefined) this.updateData.completePercent = this.percent
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       if (element.principalId != undefined) this.updateData.principalId = element.principalId
-      // 获取协作人
-      this.getAssistUserLists()
+      if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
       // 获取操作日志
       this.getLogList()
       // 获取评论列表
@@ -389,13 +388,6 @@ export default {
     closeMission() {
       this.centerDialogVisible = false
       Object.assign(this.$data, this.$options.data())
-    },
-    // 获取协作人
-    async getAssistUserLists() {
-      // const response = await getAssistUserList(this.list[this.currentIndex].taskId)
-      // if (response.success === true) {
-      //   this.updateData.assistUserList = response.assistUserList
-      // }
     },
     // 获取操作日志
     async getLogList() {
