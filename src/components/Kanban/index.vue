@@ -20,8 +20,11 @@
     <el-input ref="addTackTextarea" v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
-        <p>{{ element.taskName }}</p>
-        <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
+        <span>{{ element.taskName }}</span>
+        <div class="task-header">
+          <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
+          <i :class="statusClass[element.taskStatus]" />
+        </div>
         <span class="card-other">负责人:&nbsp;{{element.principalName||"-"}}</span>
         <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
         <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
@@ -37,6 +40,7 @@
             <span>{{ headerText }}</span>
           </div>
           <div class="right">
+            <span>{{statusText}}</span>
             <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
             <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
             <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
@@ -109,10 +113,12 @@
                 <i class="el-icon-edit" />
                 <span class="group-title">操作日志</span>
               </div>
-              <div v-for="item in logs" :key="item.logId" class="dy-content">
-                <span class="dy-time">{{ item.optDate }}</span>
-                <span class="dy-name">{{ item.userName }}</span>
-                <span class="dy-info">{{ item.optContent }}</span>
+              <div class="dynamic-list">
+                <div v-for="item in logs" :key="item.logId" class="dy-content">
+                  <span class="dy-time">{{ item.optDate }}</span>
+                  <span class="dy-name">{{ item.userName }}</span>
+                  <span class="dy-info">{{ item.optContent }}</span>
+                </div>
               </div>
             </div>
             <div class="comment-info">
@@ -120,11 +126,13 @@
                 <i class="el-icon-chat-line-round" />
                 <span class="group-title">评论区</span>
               </div>
-              <div v-for="item in commentList" :key="item.commentId" class="com-content">
-                <span class="com-time">{{ item.createDate }}</span>
-                <span class="com-name">{{ item.userName }}</span>
-                <span>发表评论</span>
-                <span class="com-info">{{ item.commentInfo }}</span>
+              <div class="comment-info-list">
+                <div v-for="item in commentList" :key="item.commentId" class="com-content">
+                  <span class="com-time">{{ item.createDate }}</span>
+                  <span class="com-name">{{ item.userName }}</span>
+                  <span>发表评论</span>
+                  <span class="com-info">{{ item.commentInfo }}</span>
+                </div>
               </div>
             </div>
             <div class="edit-comment">
@@ -208,6 +216,7 @@ export default {
         }
       ],
       colors: ['top1', 'top2', 'top3', 'top4'],
+      statusClass: ['el-icon-loading', 'el-icon-video-play', 'el-icon-video-pause', 'el-icon-success'],
       percents: [
         {
           value: '0',
@@ -288,7 +297,8 @@ export default {
         taskName: '',
         taskStatus: ''
       },
-      currentStatus: '0'
+      currentStatus: '0',
+      statusText: '未开始'
     }
   },
   created() {
@@ -365,14 +375,17 @@ export default {
           this.checked = !this.checked
         }
         this.missionStart = false
+        this.statusText = '进行中'
       } else if (element.taskStatus === '2') {
         if (this.checked) this.checked = !this.checked
         this.missionStart = true
+        this.statusText = '暂停中'
       } else if (element.taskStatus === '3') {
         if (!this.checked) {
           this.checked = !this.checked
         }
         this.missionStart = true
+        this.statusText = '已完成'
       }
       this.updateData.assistUserList.userName = this.name
       this.updateData.panelId = this.panelId
@@ -933,6 +946,12 @@ export default {
           color: #777;
           word-break: break-word;
           padding-bottom: 20px;
+          .dynamic-list {
+            margin-top: 10px;
+            min-height: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+          }
           .dy-content {
             margin: 10px 0px;
             padding-left: 26px;
@@ -954,6 +973,12 @@ export default {
           font-size: 12px;
           color: #777;
           padding-top: 10px;
+          .comment-info-list {
+            margin-top: 10px;
+            min-height: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+          }
           .com-title {
             font-size: 14px;
             padding-bottom: 10px;
@@ -1038,6 +1063,15 @@ export default {
         border-top: 1px solid #ccc;
         border-right: 1px solid #ccc;
         border-bottom: 1px solid #ccc;
+      }
+      .task-header {
+        i {
+          float: right;
+          padding: 2px 8px;
+          line-height: 18px;
+          text-align: center;
+          margin-top: 8px;
+        }
       }
       p {
         margin: 0;
