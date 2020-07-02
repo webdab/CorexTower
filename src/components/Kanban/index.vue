@@ -20,14 +20,14 @@
     <el-input ref="addTackTextarea" v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
     <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
-        <span>{{ element.taskName }}</span>
         <div class="task-header">
-          <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+          <span>{{ element.taskName }}</span>
           <i :class="statusClass[element.taskStatus].name" :style="{color:[statusClass[element.taskStatus].color]}" />
         </div>
-        <span class="card-other">负责人:&nbsp;{{element.principalName}}</span>
-        <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
-        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
+        <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+        <span class="card-other" v-if="element.principalName">负责人:&nbsp;{{element.principalName}}</span>
+        <span class="card-other" v-if="element.assistUserList">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
+        <span class="card-other" v-if="element.completePercent">完成百分比:&nbsp;{{ element.completePercent}}% </span>
       </div>
     </draggable>
     <!-- modal -->
@@ -679,6 +679,7 @@ export default {
     },
     // 发表评论
     async commitComment() {
+      if (this.comments === '') return
       const response = await addComment({
         panelId: this.panelId,
         taskId: this.list[this.currentIndex].taskId,
