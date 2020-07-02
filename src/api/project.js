@@ -5,6 +5,7 @@ import request from '@/utils/request'
  * @param {*} data
  */
 export function fetchPanelList(data) {
+  console.log(111, data)
   return request({
     url: '/panel/list',
     method: 'post',
@@ -138,7 +139,7 @@ export function updateBatch(data) {
   })
 }
 
-/* 
+/*
 查询协作人列表
 */
 export function getAssistUserList(taskId) {
