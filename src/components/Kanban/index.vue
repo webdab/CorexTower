@@ -631,7 +631,8 @@ export default {
           taskId: this.list[this.currentIndex].taskId,
           userId: this.userId,
           assistUserList: this.updateData.assistUserList,
-          projectId: this.$projectId
+          projectId: this.$projectId,
+          isUpdateAssist: true
         }
       }
       const response = await updateTask(data)
