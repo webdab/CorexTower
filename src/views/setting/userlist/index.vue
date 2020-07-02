@@ -54,8 +54,8 @@
         <el-form-item label="登录名" prop="loginName">
           <el-input v-model="temp.loginName" />
         </el-form-item>
-        <el-form-item label="密码" prop="passwd">
-          <el-input v-model="temp.passwd" />
+        <el-form-item label="密码" prop="passwd" >
+          <el-input v-model="temp.passwd" show-password type="password" />
         </el-form-item>
         <el-form-item label="部门" prop="deptName">
           <el-select v-model="temp.deptName" class="filter-item" placeholder="部门名称" style="width:100%">

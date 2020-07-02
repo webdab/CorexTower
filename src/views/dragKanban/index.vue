@@ -1,7 +1,7 @@
 <template>
   <div class="tab-wrapper">
     <div v-if="'kb' == activeName" class="filter-container">
-      <el-input v-model="taskQuery.taskName" style="width: 150px;" size="small" placeholder="请输任务名称" @keyup.enter.native="handleFilter" />
+      <el-input v-model="taskQuery.taskName" :clearable="true" style="width: 150px;" size="small" placeholder="请输任务名称" @keyup.enter.native="handleFilter" @clear="handleFilter" />
       <el-select v-model="taskQuery.principalId" style="width: 150px;" size="small" filterable clearable placeholder="请选择负责人" @change="handleFilter">
         <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
       </el-select>
@@ -15,7 +15,7 @@
         range-separator="至"
         start-placeholder="开始日期"
         end-placeholder="结束日期"
-:picker-options="pickerOptions"
+        :picker-options="pickerOptions"
         @change="handleFilter"
       />
       <el-select v-model="taskQuery.taskStatus" style="width: 150px;" size="small" clearable placeholder="请选择任务状态" @change="handleFilter">
