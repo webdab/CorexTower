@@ -21,7 +21,7 @@
     <draggable ref="addTask" :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd">
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
         <div class="task-header">
-          <span>{{ element.taskName }}</span>
+          <span class="task-header-title">{{ element.taskName }}</span>
           <i :class="statusClass[element.taskStatus].name" :style="{color:[statusClass[element.taskStatus].color]}" />
         </div>
         <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
@@ -69,7 +69,7 @@
                   </el-select>
                 </div>
                 <div class="pro-time" style="margin-left:30px">
-                  <el-date-picker v-model="time" size="mini" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
+                  <el-date-picker v-model="time" size="mini" :clearable="false" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
                 </div>
                 <div style="margin-left:30px">
                   <i class="el-icon-warning-outline" />
@@ -891,7 +891,7 @@ export default {
             font-size: 14px;
             color: #999;
             padding-right: 20px;
-            margin-top: 10px;
+            margin-top: 20px;
             // justify-content: space-between;
             align-items: center;
             div {
@@ -1086,6 +1086,9 @@ export default {
         border-bottom: 1px solid #ccc;
       }
       .task-header {
+        .task-header-title {
+          word-wrap: break-word;
+        }
         i {
           float: right;
           padding: 2px 8px;
