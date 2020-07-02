@@ -22,12 +22,12 @@
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
         <span>{{ element.taskName }}</span>
         <div class="task-header">
-          <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+          <span v-if="element.planStartDate" class="card-time">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
           <i :class="statusClass[element.taskStatus].name" :style="{color:[statusClass[element.taskStatus].color]}" />
         </div>
-        <span class="card-other">负责人:&nbsp;{{element.principalName}}</span>
-        <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
-        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
+        <span class="card-other">负责人:&nbsp;{{ element.principalName }}</span>
+        <span class="card-other">协作人:&nbsp;{{ element.assistUserList|userNames }}</span>
+        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent }}%</span> </span>
       </div>
     </draggable>
     <!-- modal -->
@@ -38,9 +38,9 @@
             <span>项目名称</span>
             <i class="el-icon-arrow-right" />
             <span>{{ headerText }}</span>
+            <span class="tack-state">{{ statusText }}</span>
           </div>
           <div class="right">
-            <span>{{statusText}}</span>
             <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
             <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
             <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
@@ -514,7 +514,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async() => {
+        .then(async () => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
@@ -813,6 +813,14 @@ export default {
         padding: 0 24px;
         box-sizing: border-box;
         border-bottom: 1px solid #efefef;
+        .left {
+          .tack-state {
+            color: #555;
+            font-size: 12px;
+            padding-left: 20px;
+            text-shadow: 1px 1px 1px #ccc;
+          }
+        }
         .right {
           .el-button {
             padding: 4px;

@@ -5,7 +5,6 @@ import request from '@/utils/request'
  * @param {*} data
  */
 export function fetchPanelList(data) {
-  console.log(111, data)
   return request({
     url: '/panel/list',
     method: 'post',
