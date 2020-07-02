@@ -79,6 +79,7 @@ export default {
     setOptions({ xAxisData, waitData, startData, pauseData, finishData } = {}) {
       this.chart.setOption({
         xAxis: {
+          type: 'category',
           data: xAxisData,
           boundaryGap: false,
           axisTick: {
@@ -86,22 +87,33 @@ export default {
           }
         },
         grid: {
-          left: 10,
-          right: 10,
-          bottom: 20,
-          top: 30,
+          left: '50',
+          right: '50',
+          bottom: '3%',
           containLabel: true
         },
         tooltip: {
           trigger: 'axis'
         },
         yAxis: {
+          type: 'value',
           axisTick: {
             show: false
           }
         },
         legend: {
           data: ['未开始', '进行中', '暂停中', '已完成']
+        },
+        toolbox: {
+          show: true,
+          feature: {
+            dataZoom: {
+              yAxisIndex: 'none'
+            },
+            dataView: { readOnly: false },
+            magicType: { type: ['line', 'bar'] },
+            restore: {},
+          }
         },
         series: [
           {
