@@ -181,7 +181,9 @@ $light_gray: #eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
-
+  background-image: url("../../assets/images/banner.png");
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
   .login-form {
     position: relative;
     width: 520px;
