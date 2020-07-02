@@ -898,7 +898,7 @@ export default {
               cursor: pointer;
             }
             .pro-time {
-              .el-input__inner[data-v-d5a341ac] {
+              .el-input__inner {
                 width: 240px;
                 font-size: 14px;
               }

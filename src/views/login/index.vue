@@ -10,7 +10,7 @@
         <span class="svg-container">
           <svg-icon icon-class="user" />
         </span>
-        <el-input ref="loginName" v-model="loginForm.loginName" placeholder="请输入用户名" name="loginName" type="text" tabindex="1" autocomplete="on" @keyup.enter.native="handleLogin" />
+        <el-input ref="loginName" v-model="loginForm.loginName" placeholder="请输入用户名" name="loginName" type="text" tabindex="1" autocomplete="off" @keyup.enter.native="handleLogin" />
       </el-form-item>
 
       <!-- <el-tooltip v-model="capsTooltip" content="大写已开启" placement="right" manual>
