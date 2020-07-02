@@ -1,5 +1,5 @@
 <template>
-  <div class="components-container board" v-loading="isLoading">
+  <div v-loading="isLoading" class="components-container board">
     <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
     <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
@@ -41,9 +41,7 @@ export default {
   },
   methods: {
     getList() {
-      this.$store.dispatch('project/fetchPanelList', {
-        projectId: this.projectId
-      })
+      this.$store.dispatch('project/fetchPanelList', null)
     },
     getUserList() {
       this.$store.dispatch('project/getProgectUserList', this.projectId)

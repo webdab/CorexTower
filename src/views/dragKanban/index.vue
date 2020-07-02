@@ -1,22 +1,30 @@
 <template>
   <div class="tab-wrapper">
-    <div class="filter-container" v-if="'kb' == activeName">
-      <el-input style="width: 150px;" size="small" placeholder="请输任务名称" v-model="input3">
-      </el-input>
-      <el-select style="width: 150px;" v-model="value" size="small" filterable clearable placeholder="请选择负责人">
-        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-        </el-option>
+    <div v-if="'kb' == activeName" class="filter-container">
+      <el-input v-model="taskQuery.taskName" style="width: 150px;" size="small" placeholder="请输任务名称" @keyup.enter.native="handleFilter" />
+      <el-select v-model="taskQuery.principalId" style="width: 150px;" size="small" filterable clearable placeholder="请选择负责人" @change="handleFilter">
+        <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
       </el-select>
-      <el-date-picker v-model="value2" size="small" type="daterange" unlink-panels range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" :picker-options="pickerOptions">
-      </el-date-picker>
-      <el-select style="width: 150px;" v-model="value" size="small" clearable placeholder="请选择任务状态">
-        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-        </el-option>
+      <el-date-picker
+        v-model="taskQuery.taskTime"
+        style="width: 280px;"
+        value-format="yyyy-MM-dd"
+        size="small"
+        type="daterange"
+        unlink-panels
+        range-separator="至"
+        start-placeholder="开始日期"
+        end-placeholder="结束日期"
+:picker-options="pickerOptions"
+        @change="handleFilter"
+      />
+      <el-select v-model="taskQuery.taskStatus" style="width: 150px;" size="small" clearable placeholder="请选择任务状态" @change="handleFilter">
+        <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value" />
       </el-select>
     </div>
     <el-tabs v-model="activeName" style="margin:6px 10px 0px 10px;width:100%;height:100%;overflow:hidden" type="border-card">
       <el-tab-pane label="看板" name="kb">
-        <board v-if="'kb' == activeName" />
+        <board v-if="'kb' == activeName" ref="board" />
       </el-tab-pane>
       <el-tab-pane label="进展" name="jz">
         <chart v-if="'jz' == activeName" />
@@ -26,6 +34,7 @@
 
 </template>
 <script>
+import { mapGetters } from 'vuex'
 import Board from './board'
 import Chart from './chart'
 export default {
@@ -36,31 +45,26 @@ export default {
   },
   data() {
     return {
+      projectId: '',
       activeName: 'kb',
-      value2: [],
       options: [
         {
-          value: '选项1',
-          label: '黄金糕'
+          value: '0',
+          label: '未开始'
         },
         {
-          value: '选项2',
-          label: '双皮奶'
+          value: '1',
+          label: '进行中'
         },
         {
-          value: '选项3',
-          label: '蚵仔煎'
+          value: '2',
+          label: '暂停中'
         },
         {
-          value: '选项4',
-          label: '龙须面'
-        },
-        {
-          value: '选项5',
-          label: '北京烤鸭'
+          value: '3',
+          label: '已完成'
         }
       ],
-      value: '',
       pickerOptions: {
         shortcuts: [
           {
@@ -94,20 +98,34 @@ export default {
       }
     }
   },
+  computed: {
+    ...mapGetters(['allUserList', 'taskQuery'])
+  },
   watch: {
     activeName(val) {
       this.$router.push(`${this.$route.path}?tab=${val}`)
     }
   },
   created() {
-    console.log('projectID', this.$route.name.substring(1))
+    this.projectId = this.$route.name.substring(1)
+
+    this.$store.commit('project/RESET_TASK_QUERY')
+    this.$store.commit('project/SET_TASK_QUERY', {
+      projectId: this.projectId
+    })
     const tab = this.$route.query.tab
     if (tab) {
       this.activeName = tab
     }
   },
   mounted() {},
-  methods: {}
+  methods: {
+    // 搜索任务
+    handleFilter() {
+      console.log(this.taskQuery)
+      this.$refs.board.getList()
+    }
+  }
 }
 </script>
 <style lang="scss">
@@ -124,7 +142,7 @@ export default {
     }
   }
   > .filter-container {
-    z-index: 999;
+    z-index: 9;
     position: absolute;
     top: 4px;
     left: 180px;

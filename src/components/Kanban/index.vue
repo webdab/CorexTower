@@ -12,19 +12,19 @@
         </el-dropdown-menu>
       </el-dropdown>
     </div>
-    <div class="creat-task" v-if="showEdTitle">
+    <div v-if="showEdTitle" class="creat-task">
       <el-input v-model="input" :placeholder="`${headerText}`" />
       <el-button type="primary" class="submit" @click="subTitle">提交</el-button>
       <el-button class="cancleSub" @click="subCancle">取消</el-button>
     </div>
-    <el-input ref="addTackTextarea" v-show="showInput" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
-    <draggable :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd" ref='addTask'>
+    <el-input v-show="showInput" ref="addTackTextarea" v-model.lazy.trim="textarea" class="el-input" :autosize="{ minRows:3}" type="textarea" placeholder="请输入标题，回车创建，ESC取消" @keyup.enter.native="submit" @keyup.esc.native="cancleSubmit" />
+    <draggable ref="addTask" :list="list" v-bind="$attrs" class="board-column-content" :set-data="setData" @change="dragEnd">
       <div v-for="(element,index) in list" :key="element.id" class="board-item" :class="[colors[element.taskLevel],{'finish':element.taskStatus == 3}]" @click="getIndex(index,element)">
         <p>{{ element.taskName }}</p>
-        <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}</span>
-        <span class="card-other">负责人:&nbsp;{{element.principalName||"-"}}</span>
-        <span class="card-other">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
-        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent}}%</span> </span>
+        <span v-if="element.planStartDate" class="card-time">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+        <span class="card-other">负责人:&nbsp;{{ element.principalName||"-" }}</span>
+        <span class="card-other">协作人:&nbsp;{{ element.assistUserList|userNames }}</span>
+        <span class="card-other">完成百分比:&nbsp;<span v-if="element.completePercent">{{ element.completePercent }}%</span> </span>
       </div>
     </draggable>
     <!-- modal -->
@@ -292,7 +292,7 @@ export default {
     }
   },
   created() {
-    //切换项目清空面板数据
+    // 切换项目清空面板数据
     this.$projectId = this.$route.name.substring(1)
   },
   computed: {
@@ -492,7 +492,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(async () => {
+        .then(async() => {
           console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
