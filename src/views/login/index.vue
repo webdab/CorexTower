@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left">
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" autocomplete="on" label-position="left" onsubmit="return false">
 
       <div class="title-container">
         <h3 class="title">一体化tower</h3>
@@ -181,7 +181,7 @@ $light_gray: #eee;
   width: 100%;
   background-color: $bg;
   overflow: hidden;
-  background-image: url("../../assets/images/banner.png");
+  background-image: url('../../assets/images/banner.png');
   background-repeat: no-repeat;
   background-size: 100% 100%;
   .login-form {
