@@ -437,7 +437,7 @@ export default {
       this.showInput = false
     },
     // 删除清单面板
-    async deleteList() {
+    deleteList() {
       this.$confirm('确定要删除该面板吗?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
@@ -450,10 +450,7 @@ export default {
               type: 'success',
               message: '删除成功!'
             })
-            if (response.success === true) {
-              this.getList()
-            }
-            this.centerDialogVisible = false
+            this.getList()
           } else {
             this.$message({
               type: 'error',
