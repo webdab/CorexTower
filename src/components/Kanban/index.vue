@@ -3,7 +3,10 @@
     <div v-if="!showEdTitle" class="board-column-header">
       <span class="num">{{ list.length }}</span>
       <span class="headerText">{{ headerText }}</span>
-      <i class="el-icon-plus" @click="addTaskView" />
+      <el-tooltip class="item" content="添加任务" placement="left" effect="light">
+        <i class="el-icon-plus" @click="addTaskView" />
+      </el-tooltip>
+
       <el-dropdown>
         <i class="el-icon-more" />
         <el-dropdown-menu slot="dropdown">
@@ -41,9 +44,15 @@
             <span class="tack-state">{{ statusText }}</span>
           </div>
           <div class="right">
-            <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
-            <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
-            <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
+            <el-tooltip class="item" effect="dark" content="暂停任务" placement="bottom">
+              <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="开始任务" placement="bottom">
+              <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
+            </el-tooltip>
+            <el-tooltip class="item" effect="dark" content="删除任务" placement="bottom">
+              <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
+            </el-tooltip>
             <el-button circle size="mini"> <i class="el-icon-close" @click="closeMission" /></el-button>
           </div>
         </div>
