@@ -48,3 +48,13 @@ export function deleteUser(id) {
     method: 'post'
   })
 }
+/**
+ * 验证用户是否存在
+ * @param {*} loginName 
+ */
+export function checkUser(loginName) {
+  return request({
+    url: '/user/checkUser/' + loginName,
+    method: 'get'
+  })
+}
