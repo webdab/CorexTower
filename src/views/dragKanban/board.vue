@@ -84,7 +84,7 @@ export default {
   position: relative;
 }
 .board {
-  height: calc(100vh - 108px);
+  height: calc(100vh - 110px);
   box-sizing: border-box;
   margin-left: 10px;
   margin-bottom: 3px;

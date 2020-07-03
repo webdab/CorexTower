@@ -156,6 +156,7 @@ import draggable from 'vuedraggable'
 import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch, getAssistUserList } from '@/api/project'
 import { string } from 'clipboard'
 import { mapGetters } from 'vuex'
+import _ from 'lodash'
 import '@/utils'
 export default {
   name: 'DragKanbanDemo',
@@ -329,7 +330,7 @@ export default {
     },
     addTaskView() {
       this.ContainerTimer = setTimeout(() => {
-        this.showInput = true
+        this.showInput = !this.showInput
         setTimeout(() => {
           // this.$refs.addTask.scrollTop = 0
           console.log(this.$refs.addTask)
@@ -560,8 +561,8 @@ export default {
         })
     },
     // 提交任务
-    async submit() {
-      this.showInput = false
+    submit: _.debounce(async function() {
+      if (this.textarea === '') return
       var task = {
         panelId: this.panelId,
         taskName: this.textarea,
@@ -571,10 +572,11 @@ export default {
       }
       const response = await addTask(task)
       if (response.success === true) {
+        this.showInput = false
+        this.textarea = ''
         this.getList()
       }
-      this.textarea = ''
-    },
+    }, 300),
     cancleSubmit() {
       this.textarea = ''
       this.showInput = false
