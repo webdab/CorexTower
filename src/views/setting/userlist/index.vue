@@ -54,7 +54,7 @@
         <el-form-item label="登录名" prop="loginName">
           <el-input v-model="temp.loginName" />
         </el-form-item>
-        <el-form-item label="密码" prop="passwd" >
+        <el-form-item label="密码" prop="passwd">
           <el-input v-model="temp.passwd" show-password type="password" />
         </el-form-item>
         <el-form-item label="部门" prop="deptName">
@@ -76,7 +76,7 @@
 </template>
 
 <script>
-import { getList, addUser, updateUser, deleteUser } from '@/api/setting-user'
+import { getList, addUser, updateUser, deleteUser, checkUser } from '@/api/setting-user'
 import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 
@@ -96,6 +96,18 @@ export default {
   directives: { waves },
   filters: {},
   data() {
+    // 验证用户名
+    let checkLoginName = (rule, value, callback) => {
+      if (this.temp.loginName.trim()) {
+        checkUser(this.temp.loginName).then(res => {
+          if (res.data !== 0) {
+            return callback(new Error('用户名已存在'))
+          } else {
+            callback()
+          }
+        })
+      }
+    }
     return {
       tableKey: 0,
       list: null,
@@ -126,7 +138,10 @@ export default {
       rules: {
         deptName: [{ required: true, message: '部门名称不能为空', trigger: 'change' }],
         userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
-        loginName: [{ required: true, message: '用户名不能为空', trigger: 'blur' }],
+        loginName: [
+          { required: true, message: '用户名不能为空', trigger: 'blur' },
+          { trigger: 'blur', validator: checkLoginName }
+        ],
         passwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       }
     }
@@ -174,6 +189,7 @@ export default {
         this.$refs['dataForm'].clearValidate()
       })
     },
+
     // 新增用户
     addUser() {
       this.$refs['dataForm'].validate(valid => {
@@ -219,16 +235,29 @@ export default {
     },
     // 删除用户
     deleteUser(row) {
-      deleteUser(row.userId).then(() => {
-        this.dialogFormVisible = false
-        this.getList()
-        this.$notify({
-          title: 'Success',
-          message: '用户删除成功',
-          type: 'success',
-          duration: 2000
-        })
+      this.$confirm('确定要删除该用户吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
+        .then(async () => {
+          deleteUser(row.userId).then(() => {
+            this.dialogFormVisible = false
+            this.getList()
+            this.$notify({
+              title: 'Success',
+              message: '用户删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     }
   }
 }

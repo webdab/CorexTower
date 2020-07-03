@@ -251,17 +251,30 @@ export default {
     },
     // 删除项目
     deleteProject(row) {
-      deleteProject(row.projectId).then(() => {
-        this.dialogFormVisible = false
-        this.getList()
-        this.changeRoute()
-        this.$notify({
-          title: 'Success',
-          message: '项目删除成功',
-          type: 'success',
-          duration: 2000
-        })
+      this.$confirm('确定要删除该项目吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
+        .then(async () => {
+          deleteProject(row.projectId).then(() => {
+            this.dialogFormVisible = false
+            this.getList()
+            this.changeRoute()
+            this.$notify({
+              title: 'Success',
+              message: '项目删除成功',
+              type: 'success',
+              duration: 2000
+            })
+          })
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     // 更新路由
     changeRoute() {
