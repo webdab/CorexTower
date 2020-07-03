@@ -698,6 +698,7 @@ export default {
 <style lang="scss" scoped>
 .board-column {
   width: 324px;
+  min-width: 324px;
   min-height: 100px;
   box-sizing: border-box;
   height: 100%;
