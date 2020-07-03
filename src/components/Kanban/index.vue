@@ -438,12 +438,35 @@ export default {
     },
     // 删除清单面板
     async deleteList() {
-      const response = await deletePanel(this.panelId)
-      this.$message({
-        type: 'success',
-        message: response.msg
+      this.$confirm('确定要删除该面板吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       })
-      this.getList()
+        .then(async () => {
+          const response = await deletePanel(this.panelId)
+          if (response.success === true) {
+            this.$message({
+              type: 'success',
+              message: '删除成功!'
+            })
+            if (response.success === true) {
+              this.getList()
+            }
+            this.centerDialogVisible = false
+          } else {
+            this.$message({
+              type: 'error',
+              message: '删除失败!'
+            })
+          }
+        })
+        .catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
     },
     // 改变任务的状态：初始状态0、开始任务1、暂停任务2、完成任务3
     async changeMissionStatus(type) {
@@ -515,7 +538,6 @@ export default {
         type: 'warning'
       })
         .then(async () => {
-          console.log('currentIndex', this.list[this.currentIndex].taskId)
           const response = await deleteTask(this.list[this.currentIndex].taskId)
           if (response.success === true) {
             this.$message({
@@ -699,6 +721,7 @@ export default {
 <style lang="scss" scoped>
 .board-column {
   width: 324px;
+  min-width: 324px;
   min-height: 100px;
   box-sizing: border-box;
   height: 100%;
