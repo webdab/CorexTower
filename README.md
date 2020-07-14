@@ -3,10 +3,10 @@
 
 ```bash
 # 克隆项目
-git clone https://github.com/PanJiaChen/vue-element-admin.git
+git clone https://github.com/webdab/CorexTower.git
 
 # 进入项目目录
-cd vue-element-admin
+cd CorexTower
 
 # 安装依赖
 npm install
@@ -65,4 +65,5 @@ npm run lint -- --fix
 │ ├── main.js # 入口we你按
 │ ├── permission # 权限控制
 │ ├── settings # 项目配置项
+├── 
 

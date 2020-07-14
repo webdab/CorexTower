@@ -1,6 +1,9 @@
 <template>
   <div v-loading="isLoading" class="components-container board">
-    <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
+    <draggable class="draggable-father" :list="panelList" @change="dragChange">
+      <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
+    </draggable>
+
     <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
       <el-input v-model.lazy.trim="listTitle" placeholder="输入清单名称" />
@@ -11,13 +14,15 @@
 </template>
 
 <script>
+import draggable from 'vuedraggable'
 import Kanban from '@/components/Kanban'
-import { fetchPanelList, addPanel, deletePanel, updatePanel } from '@/api/project'
+import { fetchPanelList, addPanel, deletePanel, updatePanel, updateBatchPanel } from '@/api/project'
 import { mapGetters } from 'vuex'
 import { Loading } from 'element-ui'
 export default {
   components: {
-    Kanban
+    Kanban,
+    draggable
   },
   data() {
     return {
@@ -46,6 +51,20 @@ export default {
     this.timer = null
   },
   methods: {
+    //拖动面板清单
+    dragChange() {
+      let arr = []
+      this.panelList.forEach(element => {
+        arr.push({
+          panelId: element.panelId
+        })
+      })
+      updateBatchPanel(arr)
+        .then(response => {
+          this.getList()
+        })
+        .catch(() => {})
+    },
     getList() {
       this.$store.dispatch('project/fetchPanelList', null)
     },
@@ -86,23 +105,25 @@ export default {
 
 <style lang="scss">
 .components-container {
-  margin: 10px 15px;
+  margin: 10px 15px 0px 5px;
   position: relative;
 }
 .board {
-  height: calc(100vh - 112px);
-  box-sizing: border-box;
-  margin-left: 10px;
-  margin-bottom: 3px;
-  padding-bottom: 5px;
   display: flex;
-  justify-content: flex-start;
-  flex-direction: row;
-  align-items: flex-start;
   overflow-x: auto;
+  height: calc(100vh - 110px);
+  .draggable-father {
+    box-sizing: border-box;
+    margin-left: 10px;
+    margin-bottom: 3px;
+    display: flex;
+    justify-content: flex-start;
+    flex-direction: row;
+    align-items: flex-start;
+  }
   .addList {
     min-width: 324px;
-    min-height: 60px;
+    height: 60px;
     box-sizing: border-box;
     background: #f0f0f0;
     border-radius: 3px;
@@ -122,8 +143,8 @@ export default {
     box-sizing: border-box;
     background: #f0f0f0;
     border-radius: 3px;
-    padding: 5px 10px;
-    margin: 0 10px;
+    padding: 10px;
+    margin: 0 10px 8px 10px;
     border: 1px solid #d9d3d3;
     color: #333;
     .submit {
