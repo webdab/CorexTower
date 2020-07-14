@@ -27,10 +27,10 @@
           <span class="task-header-title">{{ element.taskName }}</span>
           <i :class="statusClass[element.taskStatus].name" :style="{color:[statusClass[element.taskStatus].color]}" />
         </div>
-        <span class="card-time" v-if="element.planStartDate">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
-        <span class="card-other" v-if="element.principalName">负责人:&nbsp;{{element.principalName}}</span>
-        <span class="card-other" v-if="element.assistUserList">协作人:&nbsp;{{element.assistUserList|userNames}}</span>
-        <span class="card-other" v-if="element.completePercent">完成百分比:&nbsp;{{ element.completePercent}}% </span>
+        <span v-if="element.planStartDate" class="card-time">{{ element.planStartDate&&element.planStartDate.dateFormat("yyyy-mm-dd") }}-{{ element.planEndDate&&element.planEndDate.dateFormat("yyyy-mm-dd") }}</span>
+        <span v-if="element.principalName" class="card-other">负责人:&nbsp;{{ element.principalName }}</span>
+        <span v-if="element.assistUserList" class="card-other">协作人:&nbsp;{{ element.assistUserList|userNames }}</span>
+        <span v-if="element.completePercent" class="card-other">完成百分比:&nbsp;{{ element.completePercent }}% </span>
       </div>
     </draggable>
     <!-- modal -->
@@ -738,6 +738,7 @@ export default {
   margin: 0 5px;
 
   .board-column-header {
+    cursor: move;
     height: 50px;
     line-height: 50px;
     overflow: hidden;

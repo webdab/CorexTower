@@ -13,7 +13,7 @@ export function fetchPanelList(data) {
 }
 /**
  * 更新面板排序
- * @param {*} data 
+ * @param {*} data
  */
 export function updateBatchPanel(data) {
   return request({
