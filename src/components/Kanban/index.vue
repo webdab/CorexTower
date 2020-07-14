@@ -38,7 +38,7 @@
       <div class="page-container">
         <div class="page-header">
           <div class="left">
-            <span>项目名称</span>
+            <span>{{$route.meta.title}}</span>
             <i class="el-icon-arrow-right" />
             <span>{{ headerText }}</span>
             <span class="tack-state">{{ statusText }}</span>
@@ -679,7 +679,7 @@ export default {
       if (this.time == null) return
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.updateData.taskIdd,
+        taskId: this.updateData.taskId,
         planStartDate: this.time[0],
         planEndDate: this.time[1],
         userId: this.userId
