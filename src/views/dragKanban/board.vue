@@ -33,11 +33,17 @@ export default {
   created() {
     this.$store.commit('project/SET_PANEL_LIST', [])
     this.projectId = this.$route.name.substring(1)
+    this.getList()
   },
   mounted() {
-    this.getList()
     this.getUserList()
-    console.log('isLoading', this.isLoading)
+    this.timer = setInterval(() => {
+      this.getList()
+    }, 30000)
+  },
+  beforeDestroy() {
+    clearInterval(this.timer)
+    this.timer = null
   },
   methods: {
     getList() {

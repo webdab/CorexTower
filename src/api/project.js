@@ -158,3 +158,18 @@ export function getProjectDetails(id) {
     method: 'get'
   })
 }
+
+
+/**
+ *根据任务ID获取任务详情
+ *
+ * @export
+ * @param {*} id
+ * @returns
+ */
+export function getTaskDetails(id){
+  return request({
+    url:`/task/get/${id}`,
+    method:'get'
+  })
+}

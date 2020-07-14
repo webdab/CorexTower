@@ -102,7 +102,7 @@
               <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
               <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
             </div>
-            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:40px;color:#777">{{ list[currentIndex] ? list[currentIndex].taskInfo:'' }}</p>
+            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:40px;color:#777">{{ updateData.taskInfo ? updateData.taskInfo:'' }}</p>
           </div>
           <div class="infos">
             <div>
@@ -162,7 +162,7 @@
 
 <script>
 import draggable from 'vuedraggable'
-import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch, getAssistUserList } from '@/api/project'
+import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch, getAssistUserList, getTaskDetails } from '@/api/project'
 import { string } from 'clipboard'
 import { mapGetters } from 'vuex'
 import _ from 'lodash'
@@ -270,7 +270,6 @@ export default {
       percent: '',
       missionTitle: '',
       missionStart: true,
-      currentIndex: '',
       logs: [],
       commentList: [],
       updateData: {
@@ -313,7 +312,8 @@ export default {
         taskStatus: ''
       },
       currentStatus: '0',
-      statusText: '未开始'
+      statusText: '未开始',
+      taskDetails: {}
     }
   },
   created() {
@@ -370,10 +370,13 @@ export default {
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
-      console.log('element', element)
+      //获取任务详情
+      const infoResponse = await getTaskDetails(element.taskId)
+      if (infoResponse.success === true) {
+          element = infoResponse.data
+      }
       this.centerDialogVisible = true
       this.missionTitle = element.taskName
-      this.currentIndex = index
       this.percent = element.completePercent ? String(element.completePercent) : ''
       this.time = []
       this.time.push(element.planStartDate ? String(element.planStartDate) : '')
@@ -387,7 +390,7 @@ export default {
       }
 
       if (element.principalName) this.updateData.principalName = element.principalName
-      if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
+      if (element.assistUserList != '') this.updateData.assistUserList = element.assistUserList
       if (element.taskStatus === '1') {
         if (this.checked) {
           this.checked = !this.checked
@@ -407,7 +410,7 @@ export default {
       }
       this.updateData.assistUserList.userName = this.name
       this.updateData.panelId = this.panelId
-      this.updateData.taskId = this.list[this.currentIndex].taskId
+      this.updateData.taskId = element.taskId
       if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
       if (element.taskName != undefined) this.updateData.taskName = element.taskName
       if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
@@ -417,6 +420,7 @@ export default {
       if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
       if (element.principalId != undefined) this.updateData.principalId = element.principalId
       if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
+
       // 获取操作日志
       this.getLogList()
       // 获取评论列表
@@ -429,14 +433,14 @@ export default {
     },
     // 获取操作日志
     async getLogList() {
-      const logResponse = await getLog(this.list[this.currentIndex].taskId)
+      const logResponse = await getLog(this.updateData.taskId)
       if (logResponse.success === true) {
         this.logs = logResponse.data
       }
     },
     // 获取评论列表
     async getCommentsList() {
-      const commentResponse = await getComments(this.list[this.currentIndex].taskId)
+      const commentResponse = await getComments(this.updateData.taskId)
       if (commentResponse.success === true) {
         this.commentList = commentResponse.data
       }
@@ -484,7 +488,7 @@ export default {
         if (this.checked) this.checked = !this.checked
         const response = await updateTask({
           panelId: this.panelId,
-          taskId: this.list[this.currentIndex].taskId,
+          taskId: this.updateData.taskId,
           userId: this.userId,
           optUserId: this.userId,
           userName: this.name,
@@ -501,7 +505,7 @@ export default {
         if (this.checked) this.checked = !this.checked
         const response = await updateTask({
           panelId: this.panelId,
-          taskId: this.list[this.currentIndex].taskId,
+          taskId: this.updateData.taskId,
           userId: this.userId,
           optUserId: this.userId,
           userName: this.name,
@@ -525,7 +529,7 @@ export default {
         }
         const response = await updateTask({
           panelId: this.panelId,
-          taskId: this.list[this.currentIndex].taskId,
+          taskId: this.updateData.taskId,
           userId: this.userId,
           optUserId: this.userId,
           userName: this.name,
@@ -545,7 +549,7 @@ export default {
         type: 'warning'
       })
         .then(async () => {
-          const response = await deleteTask(this.list[this.currentIndex].taskId)
+          const response = await deleteTask(this.updateData.taskId)
           if (response.success === true) {
             this.$message({
               type: 'success',
@@ -619,7 +623,7 @@ export default {
     async saveDescribe() {
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskId,
         userId: this.userId,
         taskInfo: this.describe
       })
@@ -632,7 +636,7 @@ export default {
     async submitMissionTitle() {
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskId,
         userId: this.userId,
         taskName: this.missionTitle
       })
@@ -649,7 +653,7 @@ export default {
         })
         data = {
           panelId: this.panelId,
-          taskId: this.list[this.currentIndex].taskId,
+          taskId: this.updateData.taskId,
           userId: this.userId,
           principalId: this.updateData.principalName,
           principalName: principalName.userName
@@ -658,7 +662,7 @@ export default {
       if (type === 'assistUser') {
         data = {
           panelId: this.panelId,
-          taskId: this.list[this.currentIndex].taskId,
+          taskId: this.updateData.taskId,
           userId: this.userId,
           assistUserList: this.updateData.assistUserList,
           projectId: this.$projectId,
@@ -675,7 +679,7 @@ export default {
       if (this.time == null) return
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskIdd,
         planStartDate: this.time[0],
         planEndDate: this.time[1],
         userId: this.userId
@@ -688,7 +692,7 @@ export default {
     async submitLevel() {
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskId,
         userId: this.userId,
         taskLevel: this.level
       })
@@ -700,7 +704,7 @@ export default {
     async submitPercent() {
       const response = await updateTask({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskId,
         userId: this.userId,
         completePercent: this.percent
       })
@@ -713,7 +717,7 @@ export default {
       if (this.comments === '') return
       const response = await addComment({
         panelId: this.panelId,
-        taskId: this.list[this.currentIndex].taskId,
+        taskId: this.updateData.taskId,
         userId: this.userId,
         userName: this.name,
         commentInfo: this.comments
@@ -1126,7 +1130,7 @@ export default {
           padding: 2px 8px;
           line-height: 18px;
           text-align: center;
-          margin-top: 8px;
+          margin-top: 2px;
         }
       }
       p {
