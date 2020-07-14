@@ -51,9 +51,9 @@ export default {
     this.timer = null
   },
   methods: {
-    //拖动面板清单
+    // 拖动面板清单
     dragChange() {
-      let arr = []
+      const arr = []
       this.panelList.forEach(element => {
         arr.push({
           panelId: element.panelId
