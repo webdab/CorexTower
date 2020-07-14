@@ -11,6 +11,17 @@ export function fetchPanelList(data) {
     data
   })
 }
+/**
+ * 更新面板排序
+ * @param {*} data 
+ */
+export function updateBatchPanel(data) {
+  return request({
+    url: '/panel/batchUpdate',
+    method: 'post',
+    data
+  })
+}
 
 // 根据主键id删除面板表
 export function deletePanel(id) {

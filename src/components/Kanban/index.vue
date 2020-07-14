@@ -1096,7 +1096,8 @@ export default {
   .board-column-content {
     height: calc(100% - 50px);
     overflow-y: auto;
-    border: 10px solid transparent;
+    border: 4px solid transparent;
+    padding: 6px;
     .board-item {
       cursor: pointer;
       width: 100%;
