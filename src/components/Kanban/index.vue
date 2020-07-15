@@ -62,7 +62,8 @@
               <input class="checkbox" type="checkbox" :checked="checked" @change="changeMissionStatus('check')">
             </div>
             <div class="main-content">
-              <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle">
+              <textarea class="mission-title" v-model="missionTitle"  rows="1" style="{overflow:hidden;text-overflow:break-word}" placeholder="`${missionTitle}`" @blur.capture="submitMissionTitle" @keyup.enter.native="submitMissionTitle" />
+              <!-- <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle"> -->
               <!-- 负责人、协作人、日期、等级 -->
               <div class="nav">
                 <div>
@@ -149,7 +150,6 @@
               <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
               <div class="com-commit">
                 <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
-                <el-button type="info" size="small">取消</el-button>
               </div>
             </div>
           </div>
@@ -373,7 +373,7 @@ export default {
       //获取任务详情
       const infoResponse = await getTaskDetails(element.taskId)
       if (infoResponse.success === true) {
-          element = infoResponse.data
+        element = infoResponse.data
       }
       this.centerDialogVisible = true
       this.missionTitle = element.taskName
@@ -835,9 +835,8 @@ export default {
     border-radius: 5px;
     background-color: #fff;
     border: 1px solid #efefef;
-    overflow-y: auto;
     .page-container {
-      height: auto;
+      height: 100%;
       position: absolute;
       top: 0;
       left: 0;
@@ -880,7 +879,9 @@ export default {
         }
       }
       .modal-content {
+        height: calc(100% - 44px);
         padding-left: 10px;
+        overflow-y: auto;
         .left-icon {
           width: 50px;
           text-align: center;
@@ -899,7 +900,6 @@ export default {
         padding: 14px 0;
         border-bottom: 1px solid #efefef;
         display: flex;
-
         .checkbox {
           width: 30px;
           height: 30px;
@@ -909,16 +909,16 @@ export default {
         }
         .main-content {
           width: 100%;
-          input {
+          .mission-title {
             width: 100%;
-            padding: 3px 0;
-            font-size: 20px;
+            font-size: 16px;
             font-weight: 700;
             color: #333;
             line-height: 24px;
             vertical-align: baseline;
-            border: 0;
+            border: none;
             outline: none;
+            height: auto;
             background-color: rgba(0, 0, 0, 0);
           }
           .nav {
