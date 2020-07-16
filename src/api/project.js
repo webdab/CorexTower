@@ -99,7 +99,6 @@ export function deleteTask(id) {
 更新任务表
  */
 export function updateTask(data) {
-  console.log('task', data)
   return request({
     url: '/task/update',
     method: 'post',

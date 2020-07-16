@@ -13,9 +13,17 @@ const state = {
     principalId: '',
     taskStatus: ''
   },
-  isLoading: true
+  isLoading: true,
+  taskId: '',
+  showDialogPage: false
 }
 const mutations = {
+  SET_TASK_ID: (state, taskId) => {
+    state.taskId = taskId
+  },
+  SET_DIALOG_PAGE: (state, showDialogPage) => {
+    state.showDialogPage = showDialogPage
+  },
   SET_PANEL_LIST: (state, panelList) => {
     state.panelList = panelList
   },

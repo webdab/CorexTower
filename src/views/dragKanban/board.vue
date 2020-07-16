@@ -1,15 +1,15 @@
 <template>
   <div v-loading="isLoading" class="components-container board">
     <draggable class="draggable-father" :list="panelList" @change="dragChange">
-      <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban todo" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
+      <Kanban v-for="(item,index) in panelList" :key="item.panelId" :list="item.taskList" :group="group" class="kanban" :header-text.sync="item.panelTitle" :panel-id="item.panelId" />
     </draggable>
-
     <div v-if="!showEdTitle" class="addList" @click="addList">+添加清单</div>
     <div v-if="showEdTitle" class="edlist">
       <el-input v-model.lazy.trim="listTitle" placeholder="输入清单名称" />
       <el-button type="primary" class="submit" @click="submit">创建清单</el-button>
       <el-button class="cancleSub" @click="()=>showEdTitle=false">取消</el-button>
     </div>
+    <diaglogPage v-if="showDialogPage"></diaglogPage>
   </div>
 </template>
 
@@ -19,10 +19,12 @@ import Kanban from '@/components/Kanban'
 import { fetchPanelList, addPanel, deletePanel, updatePanel, updateBatchPanel } from '@/api/project'
 import { mapGetters } from 'vuex'
 import { Loading } from 'element-ui'
+import diaglogPage from '../../components/KanBanDialogPage'
 export default {
   components: {
     Kanban,
-    draggable
+    draggable,
+    diaglogPage
   },
   data() {
     return {
@@ -33,7 +35,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(['userId', 'isLoading', 'panelList'])
+    ...mapGetters(['userId', 'isLoading', 'panelList','showDialogPage'])
   },
   created() {
     this.$store.commit('project/SET_PANEL_LIST', [])
@@ -156,10 +158,8 @@ export default {
   }
 }
 .kanban {
-  &.todo {
-    .board-column-header {
-      background: #efefef;
-    }
+  .board-column-header {
+    background: #efefef;
   }
   .board-column-content {
     border-top: none !important;

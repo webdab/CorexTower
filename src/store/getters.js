@@ -15,6 +15,8 @@ const getters = {
   panelList: state => state.project.panelList,
   allUserList: state => state.project.allUserList,
   isLoading: state => state.project.isLoading,
-  taskQuery: state => state.project.taskQuery
+  taskQuery: state => state.project.taskQuery,
+  taskId:state=>state.project.taskId,
+  showDialogPage:state=>state.project.showDialogPage
 }
 export default getters

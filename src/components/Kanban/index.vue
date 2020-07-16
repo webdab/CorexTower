@@ -6,7 +6,6 @@
       <el-tooltip class="item" content="添加任务" placement="left" effect="light">
         <i class="el-icon-plus" @click="addTaskView" />
       </el-tooltip>
-
       <el-dropdown>
         <i class="el-icon-more" />
         <el-dropdown-menu slot="dropdown">
@@ -33,133 +32,8 @@
         <span v-if="element.completePercent" class="card-other">完成百分比:&nbsp;{{ element.completePercent }}% </span>
       </div>
     </draggable>
-    <!-- modal -->
-    <div v-show="centerDialogVisible" class="dialog-page">
-      <div class="page-container">
-        <div class="page-header">
-          <div class="left">
-            <span>{{$route.meta.title}}</span>
-            <i class="el-icon-arrow-right" />
-            <span>{{ headerText }}</span>
-            <span class="tack-state">{{ statusText }}</span>
-          </div>
-          <div class="right">
-            <el-tooltip class="item" effect="dark" content="暂停任务" placement="bottom">
-              <el-button v-show="!missionStart" circle size="mini"> <i class="el-icon-video-pause" @click="changeMissionStatus('pause')" /></el-button>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="开始任务" placement="bottom">
-              <el-button v-show="missionStart" circle size="mini"> <i class="el-icon-video-play" @click="changeMissionStatus('play')" /></el-button>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark" content="删除任务" placement="bottom">
-              <el-button circle size="mini"> <i class="el-icon-delete" @click="deleteMission" /></el-button>
-            </el-tooltip>
-            <el-button circle size="mini"> <i class="el-icon-close" @click="closeMission" /></el-button>
-          </div>
-        </div>
-        <div class="modal-content">
-          <div class="page-content">
-            <div class="left-icon">
-              <input class="checkbox" type="checkbox" :checked="checked" @change="changeMissionStatus('check')">
-            </div>
-            <div class="main-content">
-              <textarea class="mission-title" v-model="missionTitle"  rows="1" style="{overflow:hidden;text-overflow:break-word}" placeholder="`${missionTitle}`" @blur.capture="submitMissionTitle" @keyup.enter.native="submitMissionTitle" />
-              <!-- <input v-model="missionTitle" type="text" @blur.capture="submitMissionTitle"> -->
-              <!-- 负责人、协作人、日期、等级 -->
-              <div class="nav">
-                <div>
-                  <i class="el-icon-user-solid" />
-                  <el-select v-model="updateData.principalName" filterable size="mini" placeholder="添加负责人" clearable @change="changeTaskInfo('leader')">
-                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item.userId" />
-                  </el-select>
-                </div>
-                <div style="margin-left:30px">
-                  <svg-icon icon-class="peoples" />
-                  <el-select v-model="updateData.assistUserList" value-key="userId" filterable multiple collapse-tags size="mini" placeholder="添加协作人" clearable @change="changeTaskInfo('assistUser')">
-                    <el-option v-for="item in allUserList" :key="item.userId" :label="item.userName" :value="item" />
-                  </el-select>
-                </div>
-                <div class="pro-time" style="margin-left:30px">
-                  <el-date-picker v-model="time" size="mini" :clearable="false" type="daterange" range-separator="-" start-placeholder="开始日期" end-placeholder="结束日期" format="yyyy-MM-dd" value-format="yyyy-MM-dd HH:mm:ss" @change="setTimeRound" />
-                </div>
-                <div style="margin-left:30px">
-                  <i class="el-icon-warning-outline" />
-                  <el-select v-model="level" size="mini" placeholder="优先级" @change="submitLevel">
-                    <el-option v-for="item in dangers" :key="item.value" :label="item.label" :value="item.value">
-                      <span :style="{'color':item.color}">{{ item.label }}</span>
-                    </el-option>
-                  </el-select>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="describe">
-            <div class="edit">
-              <i class="el-icon-document" />
-              <span class="group-title">任务描述</span>
-              <a @click="()=>showDescribe=true">编辑</a>
-            </div>
-            <div v-show="showDescribe" class="edit-textarea">
-              <el-input v-model="describe" type="textarea" :rows="4" placeholder="请输入内容" />
-              <el-button type="primary" size="small" style="margin-top:5px" @click="saveDescribe">提交</el-button>
-              <el-button type="info" size="small" style="margin-top:5px" @click="()=>showDescribe=false">取消</el-button>
-            </div>
-            <p v-show="!showDescribe" style="margin-top:-2px;font-size:14px;line-height:20px;margin-left:40px;color:#777">{{ updateData.taskInfo ? updateData.taskInfo:'' }}</p>
-          </div>
-          <div class="infos">
-            <div>
-              <i class="el-icon-postcard" />
-              <span class="group-title">任务详情</span>
-            </div>
-            <div class="advance">
-              <span style="margin-left:20px">完成百分比%</span>
-              <el-select v-model="percent" placeholder="请选择" @change="submitPercent">
-                <el-option v-for="item in percents" :key="item.value" :label="item.label" :value="item.value" />
-              </el-select>
-            </div>
-          </div>
-          <div class="comments">
-            <div class="dynamic">
-              <div class="dy-title">
-                <i class="el-icon-edit" />
-                <span class="group-title">操作日志</span>
-              </div>
-              <div class="dynamic-list">
-                <div v-for="item in logs" :key="item.logId" class="dy-content">
-                  <span class="dy-time">{{ item.optDate }}</span>
-                  <span class="dy-name">{{ item.userName }}</span>
-                  <span class="dy-info">{{ item.optContent }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="comment-info">
-              <div class="com-title">
-                <i class="el-icon-chat-line-round" />
-                <span class="group-title">评论区</span>
-              </div>
-              <div class="comment-info-list">
-                <div v-for="item in commentList" :key="item.commentId" class="com-content">
-                  <span class="com-time">{{ item.createDate }}</span>
-                  <span class="com-name">{{ item.userName }}</span>
-                  <span>发表评论</span>
-                  <span class="com-info">{{ item.commentInfo }}</span>
-                </div>
-              </div>
-            </div>
-            <div class="edit-comment">
-              <span>{{ name }}</span>
-              <el-input v-model="comments" type="textarea" :rows="1" placeholder="点击发表评论" />
-              <div class="com-commit">
-                <el-button type="primary" size="small" @click="commitComment">发表评论</el-button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-show="centerDialogVisible" class="mask" style="display: none;" />
   </div>
 </template>
-
 <script>
 import draggable from 'vuedraggable'
 import { deletePanel, updatePanel, addTask, deleteTask, updateTask, addComment, getLog, getComments, updateBatch, getAssistUserList, getTaskDetails } from '@/api/project'
@@ -313,7 +187,8 @@ export default {
       },
       currentStatus: '0',
       statusText: '未开始',
-      taskDetails: {}
+      taskDetails: {},
+      height: ''
     }
   },
   created() {
@@ -322,14 +197,6 @@ export default {
   },
   computed: {
     ...mapGetters(['userId', 'allUserList', 'name'])
-  },
-  watch: {
-    currentTitle: {
-      handler: function(newValue) {
-        this.$emit('update:header-text', newValue)
-      },
-      deep: true
-    }
   },
   methods: {
     setData(dataTransfer) {
@@ -342,7 +209,6 @@ export default {
         this.showInput = !this.showInput
         setTimeout(() => {
           // this.$refs.addTask.scrollTop = 0
-          console.log(this.$refs.addTask)
           this.$refs.addTackTextarea.focus()
         }, 100)
         // 清理定时器
@@ -370,80 +236,8 @@ export default {
     },
     // 点击列表展示相应的详情
     async getIndex(index, element) {
-      //获取任务详情
-      const infoResponse = await getTaskDetails(element.taskId)
-      if (infoResponse.success === true) {
-        element = infoResponse.data
-      }
-      this.centerDialogVisible = true
-      this.missionTitle = element.taskName
-      this.percent = element.completePercent ? String(element.completePercent) : ''
-      this.time = []
-      this.time.push(element.planStartDate ? String(element.planStartDate) : '')
-      this.time.push(element.planEndDate ? String(element.planEndDate) : '')
-      this.describe = element.taskInfo ? element.taskInfo : ''
-
-      if (element.taskLevel === 0 || !element.taskLevel) {
-        this.level = element.taskLevel === 0 ? 0 : ''
-      } else {
-        this.level = element.taskLevel
-      }
-
-      if (element.principalName) this.updateData.principalName = element.principalName
-      if (element.assistUserList != '') this.updateData.assistUserList = element.assistUserList
-      if (element.taskStatus === '1') {
-        if (this.checked) {
-          this.checked = !this.checked
-        }
-        this.missionStart = false
-        this.statusText = '进行中'
-      } else if (element.taskStatus === '2') {
-        if (this.checked) this.checked = !this.checked
-        this.missionStart = true
-        this.statusText = '暂停中'
-      } else if (element.taskStatus === '3') {
-        if (!this.checked) {
-          this.checked = !this.checked
-        }
-        this.missionStart = true
-        this.statusText = '已完成'
-      }
-      this.updateData.assistUserList.userName = this.name
-      this.updateData.panelId = this.panelId
-      this.updateData.taskId = element.taskId
-      if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
-      if (element.taskName != undefined) this.updateData.taskName = element.taskName
-      if (element.taskInfo != undefined) this.updateData.taskInfo = element.taskInfo
-      if (element.planStartDate != undefined) this.updateData.planStartDate = this.time[0]
-      if (element.planEndDate != undefined) this.updateData.planEndDate = this.time[1]
-      if (element.completePercent != undefined) this.updateData.completePercent = this.percent
-      if (element.taskStatus != undefined) this.updateData.taskStatus = this.currentStatus
-      if (element.principalId != undefined) this.updateData.principalId = element.principalId
-      if (element.assistUserList != undefined) this.updateData.assistUserList = element.assistUserList
-
-      // 获取操作日志
-      this.getLogList()
-      // 获取评论列表
-      this.getCommentsList()
-    },
-    // 关闭任务详情框
-    closeMission() {
-      this.centerDialogVisible = false
-      Object.assign(this.$data, this.$options.data())
-    },
-    // 获取操作日志
-    async getLogList() {
-      const logResponse = await getLog(this.updateData.taskId)
-      if (logResponse.success === true) {
-        this.logs = logResponse.data
-      }
-    },
-    // 获取评论列表
-    async getCommentsList() {
-      const commentResponse = await getComments(this.updateData.taskId)
-      if (commentResponse.success === true) {
-        this.commentList = commentResponse.data
-      }
+      this.$store.commit('project/SET_TASK_ID',element.taskId)
+      this.$store.commit('project/SET_DIALOG_PAGE',true)
     },
     // 编辑清单名称
     editTitle() {
@@ -465,100 +259,6 @@ export default {
               message: '删除成功!'
             })
             this.getList()
-          } else {
-            this.$message({
-              type: 'error',
-              message: '删除失败!'
-            })
-          }
-        })
-        .catch(() => {
-          this.$message({
-            type: 'info',
-            message: '已取消删除'
-          })
-        })
-    },
-    // 改变任务的状态：初始状态0、开始任务1、暂停任务2、完成任务3
-    async changeMissionStatus(type) {
-      if (type === 'pause') {
-        this.missionStart = !this.missionStart
-        this.currentStatus = '2'
-        this.statusText = '暂停中'
-        if (this.checked) this.checked = !this.checked
-        const response = await updateTask({
-          panelId: this.panelId,
-          taskId: this.updateData.taskId,
-          userId: this.userId,
-          optUserId: this.userId,
-          userName: this.name,
-          taskStatus: this.currentStatus
-        })
-        if (response.success === true) {
-          this.getLogList()
-          this.getList()
-        }
-      } else if (type === 'play') {
-        this.missionStart = !this.missionStart
-        this.currentStatus = '1'
-        this.statusText = '进行中'
-        if (this.checked) this.checked = !this.checked
-        const response = await updateTask({
-          panelId: this.panelId,
-          taskId: this.updateData.taskId,
-          userId: this.userId,
-          optUserId: this.userId,
-          userName: this.name,
-          taskStatus: this.currentStatus
-        })
-        if (response.success === true) {
-          this.getLogList()
-          this.getList()
-        }
-      } else if (type === 'check') {
-        if (this.checked) {
-          this.missionStart = false
-          this.currentStatus = '1'
-          this.checked = !this.checked
-          this.statusText = '进行中'
-        } else {
-          this.currentStatus = '3'
-          this.statusText = '已完成'
-          this.missionStart = true
-          this.checked = !this.checked
-        }
-        const response = await updateTask({
-          panelId: this.panelId,
-          taskId: this.updateData.taskId,
-          userId: this.userId,
-          optUserId: this.userId,
-          userName: this.name,
-          taskStatus: this.currentStatus
-        })
-        if (response.success === true) {
-          this.getLogList()
-          this.getList()
-        }
-      }
-    },
-    // 删除该条任务
-    deleteMission() {
-      this.$confirm('确定要删除该任务吗?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(async () => {
-          const response = await deleteTask(this.updateData.taskId)
-          if (response.success === true) {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            })
-            if (response.success === true) {
-              this.getList()
-            }
-            this.centerDialogVisible = false
           } else {
             this.$message({
               type: 'error',
@@ -619,114 +319,6 @@ export default {
       this.showEdTitle = false
       this.input = ''
     },
-    // 保存项目描述
-    async saveDescribe() {
-      const response = await updateTask({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        userId: this.userId,
-        taskInfo: this.describe
-      })
-      if (response.success === true) {
-        this.showDescribe = false
-        this.getList()
-      }
-    },
-    // 设置任务标题
-    async submitMissionTitle() {
-      const response = await updateTask({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        userId: this.userId,
-        taskName: this.missionTitle
-      })
-      if (response.success === true) {
-        this.getList()
-      }
-    },
-    // 修改任务详情
-    async changeTaskInfo(type) {
-      var data = {}
-      if (type === 'leader') {
-        var principalName = this.allUserList.find(item => {
-          return item.userId === this.updateData.principalName
-        })
-        data = {
-          panelId: this.panelId,
-          taskId: this.updateData.taskId,
-          userId: this.userId,
-          principalId: this.updateData.principalName,
-          principalName: principalName.userName
-        }
-      }
-      if (type === 'assistUser') {
-        data = {
-          panelId: this.panelId,
-          taskId: this.updateData.taskId,
-          userId: this.userId,
-          assistUserList: this.updateData.assistUserList,
-          projectId: this.$projectId,
-          isUpdateAssist: true
-        }
-      }
-      const response = await updateTask(data)
-      if (response.success === true) {
-        this.getList()
-      }
-    },
-    // 项目开始时间与结束时间
-    async setTimeRound() {
-      if (this.time == null) return
-      const response = await updateTask({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        planStartDate: this.time[0],
-        planEndDate: this.time[1],
-        userId: this.userId
-      })
-      if (response.success === true) {
-        this.getList()
-      }
-    },
-    // 修改任务等级
-    async submitLevel() {
-      const response = await updateTask({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        userId: this.userId,
-        taskLevel: this.level
-      })
-      if (response.success === true) {
-        this.getList()
-      }
-    },
-    // 设置项目进度百分比
-    async submitPercent() {
-      const response = await updateTask({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        userId: this.userId,
-        completePercent: this.percent
-      })
-      if (response.success === true) {
-        this.getList()
-      }
-    },
-    // 发表评论
-    async commitComment() {
-      if (this.comments === '') return
-      const response = await addComment({
-        panelId: this.panelId,
-        taskId: this.updateData.taskId,
-        userId: this.userId,
-        userName: this.name,
-        commentInfo: this.comments
-      })
-      if (response.success === true) {
-        this.comments = ''
-        this.getCommentsList()
-      }
-    }
   }
 }
 </script>
@@ -747,7 +339,6 @@ export default {
     line-height: 50px;
     overflow: hidden;
     padding: 0 10px;
-    background: #333;
     color: #000;
     border-radius: 3px 3px 0 0;
     position: relative;
@@ -825,11 +416,12 @@ export default {
   .dialog-page {
     width: 1110px;
     height: 80%;
-    position: fixed;
+    position: fixed !important;
     // margin-left: 100px;
     top: 50%;
     left: 50%;
     margin-top: 20px;
+
     transform: translate(-50%, -50%);
     z-index: 200;
     border-radius: 5px;
@@ -919,6 +511,7 @@ export default {
             border: none;
             outline: none;
             height: auto;
+            resize: none;
             background-color: rgba(0, 0, 0, 0);
           }
           .nav {
