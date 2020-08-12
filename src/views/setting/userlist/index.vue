@@ -97,17 +97,17 @@ export default {
   filters: {},
   data() {
     // 验证用户名
-    let checkLoginName = (rule, value, callback) => {
-      if (this.temp.loginName.trim()) {
-        checkUser(this.temp.loginName).then(res => {
-          if (res.data !== 0) {
-            return callback(new Error('用户名已存在'))
-          } else {
-            callback()
-          }
-        })
-      }
-    }
+    // let checkLoginName = (rule, value, callback) => {
+    //   if (this.temp.loginName.trim()) {
+    //     checkUser(this.temp.loginName).then(res => {
+    //       if (res.data !== 0) {
+    //         return callback(new Error('用户名已存在'))
+    //       } else {
+    //         callback()
+    //       }
+    //     })
+    //   }
+    // }
     return {
       tableKey: 0,
       list: null,
@@ -140,7 +140,7 @@ export default {
         userName: [{ required: true, message: '姓名不能为空', trigger: 'blur' }],
         loginName: [
           { required: true, message: '用户名不能为空', trigger: 'blur' },
-          { trigger: 'blur', validator: checkLoginName }
+          // { trigger: 'blur', validator: checkLoginName }
         ],
         passwd: [{ required: true, message: '密码不能为空', trigger: 'blur' }]
       }
